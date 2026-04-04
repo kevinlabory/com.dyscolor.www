@@ -124,16 +124,23 @@
     });
   });
 
-  // Copy HTML
+  // Copy rich text (text/html + text/plain) so Pages/Word render colours
   copyBtn.addEventListener('click', async () => {
     if (!textarea.value.trim()) return;
+    const html = outputPanel.innerHTML;
+    const plain = outputPanel.innerText;
     try {
-      await navigator.clipboard.writeText(outputPanel.innerHTML);
+      await navigator.clipboard.write([
+        new ClipboardItem({
+          'text/html':  new Blob([html],  { type: 'text/html' }),
+          'text/plain': new Blob([plain], { type: 'text/plain' }),
+        }),
+      ]);
       const orig = copyBtn.textContent;
       copyBtn.textContent = 'Copié !';
       setTimeout(() => { copyBtn.textContent = orig; }, 1500);
     } catch {
-      // fallback: select the output
+      // Fallback: select the output visually so Cmd+C works
       const range = document.createRange();
       range.selectNodeContents(outputPanel);
       window.getSelection()?.removeAllRanges();
