@@ -1,0 +1,146 @@
+---
+---
+<main class="flex-1 flex flex-col">
+  <!-- Two-panel layout -->
+  <div class="flex-1 flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x divide-stone-200" style="min-height: 0;">
+
+    <!-- Left: input panel -->
+    <div id="input-panel" class="flex flex-col md:w-1/2 md:flex-1">
+      <label for="input-textarea" class="sr-only">Collez votre texte ici</label>
+      <textarea
+        id="input-textarea"
+        class="flex-1 w-full resize-none p-6 bg-transparent text-stone-700 text-lg leading-relaxed focus:outline-none placeholder:text-stone-300"
+        placeholder="Collez ou tapez votre texte ici…"
+        spellcheck="false"
+        autocomplete="off"
+        style="min-height: 12rem;"
+      ></textarea>
+    </div>
+
+    <!-- Right: output panel -->
+    <div class="flex flex-col md:w-1/2 md:flex-1 bg-panel">
+      <div
+        id="output-panel"
+        class="flex-1 p-6 text-lg leading-relaxed overflow-y-auto whitespace-pre-wrap text-stone-300 select-text"
+        aria-live="polite"
+        aria-label="Texte coloré"
+        style="min-height: 12rem; font-size: 1.2rem; line-height: 1.9;"
+      >
+        <span class="italic text-stone-300 text-base">Le texte coloré apparaîtra ici…</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Toolbar -->
+  <div id="toolbar" class="border-t border-stone-200 px-4 py-3 flex flex-wrap items-center gap-x-6 gap-y-2 bg-white/60">
+
+    <!-- Mode buttons -->
+    <div class="flex items-center gap-1" role="group" aria-label="Mode de colorisation">
+      <span class="text-xs text-stone-400 mr-1 uppercase tracking-wide">Mode</span>
+      <button class="mode-btn active" data-mode="syllabe">Syllabe</button>
+      <button class="mode-btn" data-mode="mot">Mot</button>
+      <button class="mode-btn" data-mode="ligne">Ligne</button>
+    </div>
+
+    <!-- Palette buttons -->
+    <div class="flex items-center gap-1" role="group" aria-label="Palette de couleurs">
+      <span class="text-xs text-stone-400 mr-1 uppercase tracking-wide">Couleurs</span>
+      <button class="palette-btn active" data-palette="doux" aria-label="Palette douce">
+        <span class="swatch" style="background:#0e7490"></span>
+        <span class="swatch" style="background:#92400e"></span>
+        Doux
+      </button>
+      <button class="palette-btn" data-palette="classique" aria-label="Palette classique">
+        <span class="swatch" style="background:#1a56db"></span>
+        <span class="swatch" style="background:#d03801"></span>
+        Classique
+      </button>
+      <button class="palette-btn" data-palette="violet" aria-label="Palette violet">
+        <span class="swatch" style="background:#5b21b6"></span>
+        <span class="swatch" style="background:#0f766e"></span>
+        Violet
+      </button>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex items-center gap-2 ml-auto">
+      <button id="copy-btn" class="action-btn" title="Copier le HTML coloré">
+        Copier
+      </button>
+      <button id="print-btn" class="action-btn" title="Imprimer">
+        Imprimer
+      </button>
+    </div>
+
+  </div>
+</main>
+
+<script>
+  import { colorizeText } from '../lib/colorize';
+  import type { ColorizeMode, PaletteKey } from '../lib/types';
+
+  const textarea = document.getElementById('input-textarea') as HTMLTextAreaElement;
+  const outputPanel = document.getElementById('output-panel') as HTMLDivElement;
+  const copyBtn = document.getElementById('copy-btn') as HTMLButtonElement;
+  const printBtn = document.getElementById('print-btn') as HTMLButtonElement;
+
+  let currentMode: ColorizeMode = 'syllabe';
+  let currentPalette: PaletteKey = 'doux';
+  let debounceTimer: ReturnType<typeof setTimeout>;
+
+  function render() {
+    const text = textarea.value;
+    if (!text.trim()) {
+      outputPanel.innerHTML = '<span class="italic text-stone-300 text-base">Le texte coloré apparaîtra ici…</span>';
+      return;
+    }
+    outputPanel.innerHTML = colorizeText(text, currentMode, currentPalette);
+  }
+
+  // Input debounce
+  textarea.addEventListener('input', () => {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(render, 120);
+  });
+
+  // Mode buttons
+  document.querySelectorAll<HTMLButtonElement>('.mode-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentMode = btn.dataset.mode as ColorizeMode;
+      render();
+    });
+  });
+
+  // Palette buttons
+  document.querySelectorAll<HTMLButtonElement>('.palette-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.palette-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentPalette = btn.dataset.palette as PaletteKey;
+      render();
+    });
+  });
+
+  // Copy HTML
+  copyBtn.addEventListener('click', async () => {
+    if (!textarea.value.trim()) return;
+    try {
+      await navigator.clipboard.writeText(outputPanel.innerHTML);
+      const orig = copyBtn.textContent;
+      copyBtn.textContent = 'Copié !';
+      setTimeout(() => { copyBtn.textContent = orig; }, 1500);
+    } catch {
+      // fallback: select the output
+      const range = document.createRange();
+      range.selectNodeContents(outputPanel);
+      window.getSelection()?.removeAllRanges();
+      window.getSelection()?.addRange(range);
+    }
+  });
+
+  // Print
+  printBtn.addEventListener('click', () => window.print());
+</script>

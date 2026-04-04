@@ -1,0 +1,134 @@
+@import "tailwindcss";
+
+@theme {
+  --color-page: #faf7f2;
+  --color-panel: #fffdf8;
+}
+
+/* ── Base ── */
+body {
+  background-color: var(--color-page);
+  font-family: 'Luciole', 'Arial', ui-sans-serif, system-ui, sans-serif;
+}
+
+/* ── Luciole font (self-hosted — place files in /public/fonts/) ── */
+/*
+@font-face {
+  font-family: 'Luciole';
+  src: url('/fonts/Luciole-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Luciole';
+  src: url('/fonts/Luciole-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+*/
+
+/* ── Background utilities ── */
+.bg-page  { background-color: var(--color-page); }
+.bg-panel { background-color: var(--color-panel); }
+
+/* ── Toolbar buttons ── */
+.mode-btn {
+  padding: 0.3rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: 1.5px solid #d6d3d1;
+  background: transparent;
+  color: #57534e;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.mode-btn:hover {
+  border-color: #0e7490;
+  color: #0e7490;
+}
+.mode-btn.active {
+  background: #0e7490;
+  border-color: #0e7490;
+  color: #fff;
+}
+
+.palette-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: 1.5px solid #d6d3d1;
+  background: transparent;
+  color: #57534e;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.palette-btn:hover {
+  border-color: #a8a29e;
+}
+.palette-btn.active {
+  border-color: #57534e;
+  background: #f5f5f4;
+  color: #1c1917;
+}
+
+.swatch {
+  display: inline-block;
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.action-btn {
+  padding: 0.35rem 1rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: 1.5px solid #d6d3d1;
+  background: transparent;
+  color: #57534e;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.action-btn:hover {
+  border-color: #92400e;
+  color: #92400e;
+}
+
+/* ── Print ── */
+@media print {
+  #input-panel,
+  #toolbar,
+  header {
+    display: none !important;
+  }
+  #output-panel {
+    font-size: 14pt;
+    line-height: 1.9;
+    color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+    padding: 0;
+    overflow: visible;
+  }
+  body {
+    background: white;
+  }
+}
+
+/* ── Responsive height ── */
+@media (min-width: 768px) {
+  main {
+    height: calc(100vh - 65px);
+  }
+  #input-textarea,
+  #output-panel {
+    height: 100%;
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "Dyscolor",
+  "short_name": "Dyscolor",
+  "description": "Aide à la lecture pour enfants dyslexiques",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#faf7f2",
+  "theme_color": "#faf7f2",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
