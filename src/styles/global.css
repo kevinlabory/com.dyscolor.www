@@ -11,8 +11,7 @@ body {
   font-family: 'Luciole', 'Arial', ui-sans-serif, system-ui, sans-serif;
 }
 
-/* ── Luciole font (self-hosted — place files in /public/fonts/) ── */
-/*
+/* ── Luciole font (self-hosted) ── */
 @font-face {
   font-family: 'Luciole';
   src: url('/fonts/Luciole-Regular.woff2') format('woff2');
@@ -27,7 +26,6 @@ body {
   font-style: normal;
   font-display: swap;
 }
-*/
 
 /* ── Background utilities ── */
 .bg-page  { background-color: var(--color-page); }
