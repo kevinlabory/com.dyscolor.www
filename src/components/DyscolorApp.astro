@@ -92,84 +92,88 @@
   import { colorizeText } from '../lib/colorize';
   import type { ColorizeMode, PaletteKey } from '../lib/types';
 
-  const textarea = document.getElementById('input-textarea') as HTMLTextAreaElement;
-  const outputPanel = document.getElementById('output-panel') as HTMLDivElement;
-  const copyBtn = document.getElementById('copy-btn') as HTMLButtonElement;
-  const printBtn = document.getElementById('print-btn') as HTMLButtonElement;
-  const silentBtn = document.getElementById('silent-btn') as HTMLButtonElement;
+  const textarea = document.getElementById('input-textarea') as HTMLTextAreaElement | null;
+  const outputPanel = document.getElementById('output-panel') as HTMLDivElement | null;
+  const copyBtn = document.getElementById('copy-btn') as HTMLButtonElement | null;
+  const printBtn = document.getElementById('print-btn') as HTMLButtonElement | null;
+  const silentBtn = document.getElementById('silent-btn') as HTMLButtonElement | null;
 
-  let currentMode: ColorizeMode = 'syllabe';
-  let currentPalette: PaletteKey = 'doux';
-  let showSilent = false;
-  let debounceTimer: ReturnType<typeof setTimeout>;
+  if (!textarea || !outputPanel) {
+    console.error('[Dyscolor] Elements manquants dans le DOM — rechargez la page.');
+  } else {
+    let currentMode: ColorizeMode = 'syllabe';
+    let currentPalette: PaletteKey = 'doux';
+    let showSilent = false;
+    let debounceTimer: ReturnType<typeof setTimeout>;
 
-  function render() {
-    const text = textarea.value;
-    if (!text.trim()) {
-      outputPanel.innerHTML = '<span class="italic text-stone-300 text-base">Le texte coloré apparaîtra ici…</span>';
-      return;
+    function render() {
+      const text = textarea!.value;
+      if (!text.trim()) {
+        outputPanel!.innerHTML = '<span class="italic text-stone-300 text-base">Le texte coloré apparaîtra ici…</span>';
+        return;
+      }
+      outputPanel!.innerHTML = colorizeText(text, currentMode, currentPalette, showSilent);
     }
-    outputPanel.innerHTML = colorizeText(text, currentMode, currentPalette, showSilent);
+
+    // Silent letters toggle
+    silentBtn?.addEventListener('click', () => {
+      showSilent = !showSilent;
+      silentBtn.classList.toggle('active', showSilent);
+      silentBtn.setAttribute('aria-pressed', String(showSilent));
+      render();
+    });
+
+    // Input debounce
+    textarea.addEventListener('input', () => {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(render, 120);
+    });
+
+    // Mode buttons (only buttons with a data-mode attribute)
+    document.querySelectorAll<HTMLButtonElement>('[data-mode]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentMode = btn.dataset.mode as ColorizeMode;
+        render();
+      });
+    });
+
+    // Palette buttons
+    document.querySelectorAll<HTMLButtonElement>('[data-palette]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.palette-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentPalette = btn.dataset.palette as PaletteKey;
+        render();
+      });
+    });
+
+    // Copy rich text (text/html + text/plain) so Pages/Word render colours
+    copyBtn?.addEventListener('click', async () => {
+      if (!textarea.value.trim()) return;
+      const html = outputPanel!.innerHTML;
+      const plain = outputPanel!.innerText;
+      try {
+        await navigator.clipboard.write([
+          new ClipboardItem({
+            'text/html':  new Blob([html],  { type: 'text/html' }),
+            'text/plain': new Blob([plain], { type: 'text/plain' }),
+          }),
+        ]);
+        const orig = copyBtn!.textContent;
+        copyBtn!.textContent = 'Copié !';
+        setTimeout(() => { copyBtn!.textContent = orig; }, 1500);
+      } catch {
+        // Fallback: select the output visually so Cmd+C works
+        const range = document.createRange();
+        range.selectNodeContents(outputPanel!);
+        window.getSelection()?.removeAllRanges();
+        window.getSelection()?.addRange(range);
+      }
+    });
+
+    // Print
+    printBtn?.addEventListener('click', () => window.print());
   }
-
-  // Silent letters toggle
-  silentBtn.addEventListener('click', () => {
-    showSilent = !showSilent;
-    silentBtn.classList.toggle('active', showSilent);
-    silentBtn.setAttribute('aria-pressed', String(showSilent));
-    render();
-  });
-
-  // Input debounce
-  textarea.addEventListener('input', () => {
-    clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(render, 120);
-  });
-
-  // Mode buttons (only buttons with a data-mode attribute)
-  document.querySelectorAll<HTMLButtonElement>('[data-mode]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      currentMode = btn.dataset.mode as ColorizeMode;
-      render();
-    });
-  });
-
-  // Palette buttons
-  document.querySelectorAll<HTMLButtonElement>('[data-palette]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.palette-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      currentPalette = btn.dataset.palette as PaletteKey;
-      render();
-    });
-  });
-
-  // Copy rich text (text/html + text/plain) so Pages/Word render colours
-  copyBtn.addEventListener('click', async () => {
-    if (!textarea.value.trim()) return;
-    const html = outputPanel.innerHTML;
-    const plain = outputPanel.innerText;
-    try {
-      await navigator.clipboard.write([
-        new ClipboardItem({
-          'text/html':  new Blob([html],  { type: 'text/html' }),
-          'text/plain': new Blob([plain], { type: 'text/plain' }),
-        }),
-      ]);
-      const orig = copyBtn.textContent;
-      copyBtn.textContent = 'Copié !';
-      setTimeout(() => { copyBtn.textContent = orig; }, 1500);
-    } catch {
-      // Fallback: select the output visually so Cmd+C works
-      const range = document.createRange();
-      range.selectNodeContents(outputPanel);
-      window.getSelection()?.removeAllRanges();
-      window.getSelection()?.addRange(range);
-    }
-  });
-
-  // Print
-  printBtn.addEventListener('click', () => window.print());
 </script>
