@@ -63,6 +63,18 @@
       </button>
     </div>
 
+    <!-- Silent letters toggle -->
+    <div class="flex items-center gap-1.5">
+      <button
+        id="silent-btn"
+        class="mode-btn"
+        aria-pressed="false"
+        title="Afficher les lettres muettes en gris"
+      >
+        <span style="color:#b8b0a0">e</span> Lettres muettes
+      </button>
+    </div>
+
     <!-- Actions -->
     <div class="flex items-center gap-2 ml-auto">
       <button id="copy-btn" class="action-btn" title="Copier le HTML coloré">
@@ -84,9 +96,11 @@
   const outputPanel = document.getElementById('output-panel') as HTMLDivElement;
   const copyBtn = document.getElementById('copy-btn') as HTMLButtonElement;
   const printBtn = document.getElementById('print-btn') as HTMLButtonElement;
+  const silentBtn = document.getElementById('silent-btn') as HTMLButtonElement;
 
   let currentMode: ColorizeMode = 'syllabe';
   let currentPalette: PaletteKey = 'doux';
+  let showSilent = false;
   let debounceTimer: ReturnType<typeof setTimeout>;
 
   function render() {
@@ -95,8 +109,16 @@
       outputPanel.innerHTML = '<span class="italic text-stone-300 text-base">Le texte coloré apparaîtra ici…</span>';
       return;
     }
-    outputPanel.innerHTML = colorizeText(text, currentMode, currentPalette);
+    outputPanel.innerHTML = colorizeText(text, currentMode, currentPalette, showSilent);
   }
+
+  // Silent letters toggle
+  silentBtn.addEventListener('click', () => {
+    showSilent = !showSilent;
+    silentBtn.classList.toggle('active', showSilent);
+    silentBtn.setAttribute('aria-pressed', String(showSilent));
+    render();
+  });
 
   // Input debounce
   textarea.addEventListener('input', () => {
