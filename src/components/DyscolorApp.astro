@@ -67,7 +67,7 @@
     <div class="flex items-center gap-1.5">
       <button
         id="silent-btn"
-        class="mode-btn"
+        class="silent-toggle-btn"
         aria-pressed="false"
         title="Afficher les lettres muettes en gris"
       >
@@ -126,8 +126,8 @@
     debounceTimer = setTimeout(render, 120);
   });
 
-  // Mode buttons
-  document.querySelectorAll<HTMLButtonElement>('.mode-btn').forEach(btn => {
+  // Mode buttons (only buttons with a data-mode attribute)
+  document.querySelectorAll<HTMLButtonElement>('[data-mode]').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
@@ -137,7 +137,7 @@
   });
 
   // Palette buttons
-  document.querySelectorAll<HTMLButtonElement>('.palette-btn').forEach(btn => {
+  document.querySelectorAll<HTMLButtonElement>('[data-palette]').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.palette-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
