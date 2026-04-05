@@ -5,7 +5,9 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "deploy": "sst deploy --stage production",
+    "deploy:dev": "sst deploy --stage dev"
   },
   "dependencies": {
     "hypher": "^0.2.5",
@@ -15,6 +17,7 @@
     "astro": "^5.5.0",
     "@tailwindcss/vite": "^4.1.0",
     "tailwindcss": "^4.1.0",
-    "typescript": "^5.7.0"
+    "typescript": "^5.7.0",
+    "sst": "^4.6.11"
   }
 }
