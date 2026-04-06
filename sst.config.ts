@@ -31,26 +31,26 @@ export default $config({
   },
 
   async run() {
-    // CloudFront Response Headers Policy
-    // Ajoute les security headers sur chaque réponse CloudFront.
+    // ── Zone DNS Route 53 ───────────────────────────────────────────────────
+    // Créée en IaC. Après le premier `sst deploy`, copiez les nameservers
+    // affichés dans l'output "nameservers" vers OVH (Domaines → Serveurs DNS).
+    const zone = new aws.route53.Zone("DyscolorZone", {
+      name: "dyscolor.com",
+    });
+
+    // ── Security headers CloudFront ─────────────────────────────────────────
     const headersPolicy = new aws.cloudfront.ResponseHeadersPolicy(
       "DyscolorSecurityHeaders",
       {
         name: `dyscolor-security-headers-${$app.stage}`,
 
         securityHeadersConfig: {
-          // X-Content-Type-Options: nosniff
           contentTypeOptions: { override: true },
-
-          // X-Frame-Options: DENY
           frameOptions: { frameOption: "DENY", override: true },
-
-          // Referrer-Policy
           referrerPolicy: {
             referrerPolicy: "strict-origin-when-cross-origin",
             override: true,
           },
-
           // HSTS — 2 ans, includeSubDomains, preload
           strictTransportSecurity: {
             accessControlMaxAgeSec: 63_072_000,
@@ -68,7 +68,6 @@ export default $config({
               override: true,
             },
             {
-              // Désactive l'accès caméra/micro/géoloc/paiement inutiles
               header: "Permissions-Policy",
               value: "camera=(), microphone=(), geolocation=(), payment=()",
               override: true,
@@ -78,7 +77,8 @@ export default $config({
       }
     );
 
-    new sst.aws.StaticSite("DyscolorSite", {
+    // ── Site statique ───────────────────────────────────────────────────────
+    const site = new sst.aws.StaticSite("DyscolorSite", {
       build: {
         command: "npm run build",
         output: "dist",
@@ -86,13 +86,13 @@ export default $config({
       indexPage: "index.html",
       errorPage: "index.html",
       domain: {
-        name: "dyscolor.com",
-        aliases: ["www.dyscolor.com"],
+        name: "www.dyscolor.com",   // domaine principal
+        aliases: ["dyscolor.com"],  // apex redirigé vers www
+        dns: sst.aws.dns({ zone: zone.zoneId }),
       },
 
       transform: {
         cdn: (args) => {
-          // Attache la policy de headers à tous les comportements CloudFront
           args.defaultCacheBehavior = {
             ...(args.defaultCacheBehavior as object),
             responseHeadersPolicyId: headersPolicy.id,
@@ -100,5 +100,12 @@ export default $config({
         },
       },
     });
+
+    // ── Outputs ─────────────────────────────────────────────────────────────
+    return {
+      // Copiez ces 4 nameservers dans OVH après le premier déploiement
+      nameservers: zone.nameServers,
+      url: site.url,
+    };
   },
 });
