@@ -9,7 +9,7 @@
       <label for="input-textarea" class="sr-only">Collez votre texte ici</label>
       <textarea
         id="input-textarea"
-        class="flex-1 w-full resize-none p-6 bg-transparent text-stone-700 text-lg leading-relaxed focus:outline-none placeholder:text-stone-300"
+        class="flex-1 w-full resize-none p-6 bg-transparent text-stone-700 text-lg leading-relaxed placeholder:text-stone-400 focus-visible:outline-2 focus-visible:outline-stone-400 focus-visible:outline-offset-[-2px]"
         placeholder="Collez ou tapez votre texte ici…"
         spellcheck="false"
         autocomplete="off"
@@ -21,44 +21,49 @@
     <div class="flex flex-col md:w-1/2 md:flex-1 bg-panel">
       <div
         id="output-panel"
-        class="flex-1 p-6 text-lg leading-relaxed overflow-y-auto whitespace-pre-wrap text-stone-300 select-text"
+        class="flex-1 p-6 text-lg leading-relaxed overflow-y-auto whitespace-pre-wrap select-text"
         aria-live="polite"
         aria-label="Texte coloré"
         style="min-height: 12rem; font-size: 1.2rem; line-height: 1.9;"
       >
-        <span class="italic text-stone-300 text-base">Le texte coloré apparaîtra ici…</span>
+        <span class="italic text-stone-400 text-base">Le texte coloré apparaîtra ici…</span>
       </div>
     </div>
 
   </div>
 
   <!-- Toolbar -->
-  <div id="toolbar" class="border-t border-stone-200 px-4 py-3 flex flex-wrap items-center gap-x-6 gap-y-2 bg-white/60">
+  <div
+    id="toolbar"
+    role="toolbar"
+    aria-label="Options de colorisation"
+    class="border-t border-stone-200 px-4 py-3 flex flex-wrap items-center gap-x-6 gap-y-2 bg-white/60"
+  >
 
     <!-- Mode buttons -->
-    <div class="flex items-center gap-1" role="group" aria-label="Mode de colorisation">
-      <span class="text-xs text-stone-400 mr-1 uppercase tracking-wide">Mode</span>
-      <button class="mode-btn active" data-mode="syllabe">Syllabe</button>
-      <button class="mode-btn" data-mode="mot">Mot</button>
-      <button class="mode-btn" data-mode="ligne">Ligne</button>
+    <div class="flex items-center gap-1" role="radiogroup" aria-label="Mode de colorisation">
+      <span class="text-xs text-stone-400 mr-1 uppercase tracking-wide" aria-hidden="true">Mode</span>
+      <button class="mode-btn" role="radio" aria-checked="true"  data-mode="syllabe">Syllabe</button>
+      <button class="mode-btn" role="radio" aria-checked="false" data-mode="mot">Mot</button>
+      <button class="mode-btn" role="radio" aria-checked="false" data-mode="ligne">Ligne</button>
     </div>
 
     <!-- Palette buttons -->
-    <div class="flex items-center gap-1" role="group" aria-label="Palette de couleurs">
-      <span class="text-xs text-stone-400 mr-1 uppercase tracking-wide">Couleurs</span>
-      <button class="palette-btn active" data-palette="doux" aria-label="Palette douce">
-        <span class="swatch" style="background:#0e7490"></span>
-        <span class="swatch" style="background:#92400e"></span>
+    <div class="flex items-center gap-1" role="radiogroup" aria-label="Palette de couleurs">
+      <span class="text-xs text-stone-400 mr-1 uppercase tracking-wide" aria-hidden="true">Couleurs</span>
+      <button class="palette-btn active" role="radio" aria-checked="true"  data-palette="doux"      aria-label="Palette douce (bleu et orange)">
+        <span class="swatch" style="background:#0e7490" aria-hidden="true"></span>
+        <span class="swatch" style="background:#92400e" aria-hidden="true"></span>
         Doux
       </button>
-      <button class="palette-btn" data-palette="classique" aria-label="Palette classique">
-        <span class="swatch" style="background:#1a56db"></span>
-        <span class="swatch" style="background:#d03801"></span>
+      <button class="palette-btn" role="radio" aria-checked="false" data-palette="classique" aria-label="Palette classique (bleu vif et rouge)">
+        <span class="swatch" style="background:#1a56db" aria-hidden="true"></span>
+        <span class="swatch" style="background:#d03801" aria-hidden="true"></span>
         Classique
       </button>
-      <button class="palette-btn" data-palette="violet" aria-label="Palette violet">
-        <span class="swatch" style="background:#5b21b6"></span>
-        <span class="swatch" style="background:#0f766e"></span>
+      <button class="palette-btn" role="radio" aria-checked="false" data-palette="violet"    aria-label="Palette violet et vert">
+        <span class="swatch" style="background:#5b21b6" aria-hidden="true"></span>
+        <span class="swatch" style="background:#0f766e" aria-hidden="true"></span>
         Violet
       </button>
     </div>
@@ -69,18 +74,18 @@
         id="silent-btn"
         class="silent-toggle-btn"
         aria-pressed="false"
-        title="Afficher les lettres muettes en gris"
+        aria-label="Afficher les lettres muettes en gris"
       >
-        <span style="color:#b8b0a0">e</span> Lettres muettes
+        <span style="color:#b8b0a0" aria-hidden="true">e</span> Lettres muettes
       </button>
     </div>
 
     <!-- Actions -->
     <div class="flex items-center gap-2 ml-auto">
-      <button id="copy-btn" class="action-btn" title="Copier le HTML coloré">
+      <button id="copy-btn" class="action-btn" aria-label="Copier le texte coloré dans le presse-papier">
         Copier
       </button>
-      <button id="print-btn" class="action-btn" title="Imprimer">
+      <button id="print-btn" class="action-btn" aria-label="Imprimer le texte coloré">
         Imprimer
       </button>
     </div>
@@ -109,7 +114,7 @@
     function render() {
       const text = textarea!.value;
       if (!text.trim()) {
-        outputPanel!.innerHTML = '<span class="italic text-stone-300 text-base">Le texte coloré apparaîtra ici…</span>';
+        outputPanel!.innerHTML = '<span class="italic text-stone-400 text-base">Le texte coloré apparaîtra ici…</span>';
         return;
       }
       outputPanel!.innerHTML = colorizeText(text, currentMode, currentPalette, showSilent);
@@ -129,21 +134,29 @@
       debounceTimer = setTimeout(render, 120);
     });
 
-    // Mode buttons (only buttons with a data-mode attribute)
+    // Mode buttons (radiogroup: update aria-checked + active class)
     document.querySelectorAll<HTMLButtonElement>('[data-mode]').forEach(btn => {
       btn.addEventListener('click', () => {
-        document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('[data-mode]').forEach(b => {
+          b.classList.remove('active');
+          b.setAttribute('aria-checked', 'false');
+        });
         btn.classList.add('active');
+        btn.setAttribute('aria-checked', 'true');
         currentMode = btn.dataset.mode as ColorizeMode;
         render();
       });
     });
 
-    // Palette buttons
+    // Palette buttons (radiogroup: update aria-checked + active class)
     document.querySelectorAll<HTMLButtonElement>('[data-palette]').forEach(btn => {
       btn.addEventListener('click', () => {
-        document.querySelectorAll('.palette-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('[data-palette]').forEach(b => {
+          b.classList.remove('active');
+          b.setAttribute('aria-checked', 'false');
+        });
         btn.classList.add('active');
+        btn.setAttribute('aria-checked', 'true');
         currentPalette = btn.dataset.palette as PaletteKey;
         render();
       });

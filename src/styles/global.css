@@ -47,7 +47,8 @@ body {
   border-color: #0e7490;
   color: #0e7490;
 }
-.mode-btn.active {
+.mode-btn.active,
+.mode-btn[aria-checked="true"] {
   background: #0e7490;
   border-color: #0e7490;
   color: #fff;
