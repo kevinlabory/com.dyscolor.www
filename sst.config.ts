@@ -83,13 +83,12 @@ export default $config({
         command: "npm run build",
         output: "dist",
       },
-      // Uncomment and set your domain once DNS is configured in Route 53:
-      // domain: {
-      //   name: "dyscolor.com",
-      //   aliases: ["www.dyscolor.com"],
-      // },
       indexPage: "index.html",
       errorPage: "index.html",
+      domain: {
+        name: "dyscolor.com",
+        aliases: ["www.dyscolor.com"],
+      },
 
       transform: {
         cdn: (args) => {
