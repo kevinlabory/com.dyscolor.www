@@ -13,8 +13,11 @@ jobs:
   deploy:
     name: sst deploy dev
     runs-on: ubuntu-latest
-    # Ne pas déployer si la PR est fermée sans merge (suppression déclenchée séparément)
     if: github.event.action != 'closed'
+    permissions:
+      id-token: write
+      contents: read
+      pull-requests: write   # requis pour poster le commentaire PR
 
     steps:
       - uses: actions/checkout@v4
@@ -37,6 +40,12 @@ jobs:
       - name: Install SST runtime
         run: npx sst install
 
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: eu-west-3
+
       - name: Deploy
         id: deploy
         run: |
@@ -44,10 +53,6 @@ jobs:
           echo "$OUTPUT"
           URL=$(echo "$OUTPUT" | grep -oP 'https://[a-z0-9]+\.cloudfront\.net' | head -1)
           echo "url=$URL" >> $GITHUB_OUTPUT
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: eu-west-3
 
       - name: Post preview URL on PR
         uses: actions/github-script@v7
@@ -69,6 +74,9 @@ jobs:
     name: sst remove dev
     runs-on: ubuntu-latest
     if: github.event.action == 'closed'
+    permissions:
+      id-token: write
+      contents: read
 
     steps:
       - uses: actions/checkout@v4
@@ -91,9 +99,11 @@ jobs:
       - name: Install SST runtime
         run: npx sst install
 
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: eu-west-3
+
       - name: Remove dev environment
         run: npx sst remove --stage dev
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: eu-west-3
