@@ -7,7 +7,8 @@
     "build": "astro build",
     "preview": "astro preview",
     "deploy": "sst deploy --stage production",
-    "deploy:dev": "sst deploy --stage dev"
+    "deploy:dev": "sst deploy --stage dev",
+    "gen:og": "node scripts/generate-og.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.2",
@@ -17,6 +18,7 @@
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.0",
     "astro": "^5.5.0",
+    "sharp": "^0.34.5",
     "sst": "^4.6.11",
     "tailwindcss": "^4.1.0",
     "typescript": "^5.7.0"
