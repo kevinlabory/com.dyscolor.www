@@ -9,21 +9,72 @@ const {
   title = 'Dyscolor — La lecture en couleurs',
   description = 'Aide à la lecture pour enfants dyslexiques. Collez un texte et il s\'affiche avec des couleurs alternées par syllabe, mot ou ligne.',
 } = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: 'Dyscolor',
+  url: 'https://dyscolor.com',
+  description,
+  applicationCategory: 'EducationalApplication',
+  operatingSystem: 'Any',
+  browserRequirements: 'Requires JavaScript',
+  inLanguage: 'fr',
+  audience: {
+    '@type': 'Audience',
+    audienceType: 'Enfants dyslexiques, enseignants, parents',
+  },
+  offers: {
+    '@type': 'Offer',
+    price: '0',
+    priceCurrency: 'EUR',
+  },
+  featureList: [
+    'Colorisation par syllabe',
+    'Colorisation par mot',
+    'Colorisation par ligne',
+    'Détection des lettres muettes',
+    'Police Luciole pour dyslexiques',
+    'Export vers Pages et Word',
+    'Impression avec couleurs',
+  ],
+};
 ---
 <!doctype html>
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- SEO -->
     <title>{title}</title>
     <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalURL} />
+    <meta name="robots" content="index, follow" />
+
+    <!-- Open Graph -->
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://dyscolor.com" />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:locale" content="fr_FR" />
+    <meta property="og:site_name" content="Dyscolor" />
+
+    <!-- Twitter / X card -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+
+    <!-- Structured data -->
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+
+    <!-- PWA + theme -->
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <meta name="theme-color" content="#faf7f2" />
+
     <script>
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/sw.js').catch(() => {});

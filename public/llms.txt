@@ -1,0 +1,44 @@
+# Dyscolor
+
+> Dyscolor est un outil web gratuit d'aide à la lecture pour les enfants dyslexiques.
+> Il colorise n'importe quel texte français en alternant les couleurs par syllabe, par mot ou par ligne,
+> afin de faciliter le suivi visuel et la décomposition des mots.
+
+## Fonctionnalités
+
+- **Colorisation par syllabe** : chaque syllabe alterne entre deux couleurs (algorithme de syllabation français basé sur les patterns TeX/Liang via Hypher)
+- **Colorisation par mot** : chaque mot entier alterne entre deux couleurs
+- **Colorisation par ligne** : chaque ligne alterne entre deux couleurs
+- **Lettres muettes** : affichage en gris clair des lettres non prononcées (`e` final, `h` initial, `t`/`s`/`x`/`z` finaux, terminaisons `-aient`)
+- **3 palettes de couleurs** : Doux (bleu/orange), Classique (bleu vif/rouge), Violet (violet/vert)
+- **Police Luciole** : police de caractères conçue pour les personnes malvoyantes et dyslexiques
+- **Export** : copie du texte coloré en HTML riche (collable dans Pages, Word, Google Docs)
+- **Impression** : impression avec conservation des couleurs (`color-adjust: exact`)
+- **PWA** : fonctionne hors-ligne via Service Worker
+
+## Usage
+
+L'application est entièrement côté client (pas de serveur, pas de données envoyées).
+L'utilisateur colle ou tape un texte dans la zone de saisie ; le rendu coloré apparaît en temps réel dans le panneau de droite.
+
+## Public cible
+
+Enfants dyslexiques (primaire et collège), enseignants, orthophonistes, parents.
+
+## Technologies
+
+- Astro 5 (site statique)
+- Tailwind CSS v4
+- Hypher + hyphenation.fr (syllabation française)
+- Police Luciole (CC-BY 4.0)
+- Hébergé sur AWS S3 + CloudFront
+
+## Pages
+
+- [Accueil](https://dyscolor.com/): Application principale (page unique)
+
+## Informations légales
+
+- Application gratuite, sans publicité, sans tracking
+- Aucune donnée utilisateur collectée ou transmise
+- Code source : https://github.com/kevinlabory/com.dyscolor.www
