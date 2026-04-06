@@ -35,10 +35,9 @@ Enfants dyslexiques (primaire et collège), enseignants, orthophonistes, parents
 
 ## Pages
 
-- [Accueil](https://dyscolor.com/): Application principale (page unique)
+- [Accueil](https://www.dyscolor.com/): Application principale (page unique)
 
 ## Informations légales
 
 - Application gratuite, sans publicité, sans tracking
 - Aucune donnée utilisateur collectée ou transmise
-- Code source : https://github.com/kevinlabory/com.dyscolor.www
