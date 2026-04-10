@@ -22,7 +22,7 @@ export default $config({
     return {
       name: "dyscolor",
       removal: input?.stage === "production" ? "retain" : "remove",
-      protect: ["production"],
+      protect: input?.stage === "production",
       home: "aws",
       providers: {
         aws: { region: "eu-west-3" },
