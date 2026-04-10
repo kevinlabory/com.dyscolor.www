@@ -4,7 +4,7 @@ import sitemap from '@astrojs/sitemap';
 
 export default defineConfig({
   output: 'static',
-  site: 'https://dyscolor.com',
+  site: 'https://www.dyscolor.com',
   integrations: [sitemap()],
   vite: {
     plugins: [tailwindcss()],
