@@ -329,10 +329,13 @@ export default $config({
             preload: true,
             override: true,
           },
+          contentSecurityPolicy: {
+            contentSecurityPolicy: CSP,
+            override: true,
+          },
         },
         customHeadersConfig: {
           items: [
-            { header: "Content-Security-Policy", value: CSP, override: true },
             {
               header: "Permissions-Policy",
               value: "camera=(), microphone=(), geolocation=(), payment=()",
