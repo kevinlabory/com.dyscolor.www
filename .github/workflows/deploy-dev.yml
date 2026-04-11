@@ -49,9 +49,9 @@ jobs:
       - name: Deploy
         id: deploy
         run: |
-          OUTPUT=$(npx sst deploy --stage dev 2>&1)
-          echo "$OUTPUT"
-          URL=$(echo "$OUTPUT" | grep -oP 'https://[a-z0-9]+\.cloudfront\.net' | head -1)
+          set -o pipefail
+          npx sst deploy --stage dev 2>&1 | tee /tmp/sst-output.txt
+          URL=$(grep -oP 'https://[a-z0-9]+\.cloudfront\.net' /tmp/sst-output.txt | head -1)
           echo "url=$URL" >> $GITHUB_OUTPUT
 
       - name: Post preview URL on PR
