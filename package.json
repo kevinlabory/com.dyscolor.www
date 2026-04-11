@@ -12,6 +12,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "mcp": "tsx mcp-server.ts"
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.2",
