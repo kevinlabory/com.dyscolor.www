@@ -32,12 +32,12 @@
 
   </div>
 
-  <!-- Toolbar -->
+  <!-- Desktop toolbar (hidden on mobile) -->
   <div
     id="toolbar"
     role="toolbar"
     aria-label="Options de colorisation"
-    class="border-t border-stone-200 px-4 py-3 flex flex-wrap items-center gap-x-6 gap-y-2 bg-white/60"
+    class="border-t border-stone-200 px-4 py-3 hidden md:flex flex-wrap items-center gap-x-6 gap-y-2 bg-white/60"
   >
 
     <!-- Mode buttons -->
@@ -71,8 +71,8 @@
     <!-- Silent letters toggle -->
     <div class="flex items-center gap-1.5">
       <button
-        id="silent-btn"
         class="silent-toggle-btn"
+        data-silent-toggle
         aria-pressed="false"
         aria-label="Afficher les lettres muettes en gris"
       >
@@ -82,26 +82,135 @@
 
     <!-- Actions -->
     <div class="flex items-center gap-2 ml-auto">
-      <button id="copy-btn" class="action-btn" aria-label="Copier le texte coloré dans le presse-papier">
+      <button data-copy class="action-btn" aria-label="Copier le texte coloré dans le presse-papier">
         Copier
       </button>
-      <button id="print-btn" class="action-btn" aria-label="Imprimer le texte coloré">
+      <button data-print class="action-btn" aria-label="Imprimer le texte coloré">
         Imprimer
       </button>
     </div>
 
   </div>
+
+  <!-- Mobile bottom bar (visible on mobile only) -->
+  <div id="mobile-bar" class="md:hidden border-t border-stone-200 bg-white/60">
+    <div class="flex items-center gap-2 px-4 py-3">
+      <!-- Current state chips -->
+      <span id="mobile-mode-chip" class="mobile-chip">Syllabe</span>
+      <span id="mobile-palette-chip" class="mobile-chip">Doux</span>
+      <div class="flex-1"></div>
+      <!-- Copy (primary action, always visible) -->
+      <button data-copy class="action-btn" aria-label="Copier le texte coloré dans le presse-papier">
+        Copier
+      </button>
+      <!-- Settings trigger -->
+      <button
+        id="options-btn"
+        class="options-btn"
+        aria-label="Ouvrir les réglages"
+        aria-expanded="false"
+        aria-controls="bottom-sheet"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/>
+          <line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/>
+          <line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/>
+          <line x1="1" y1="14" x2="7" y2="14"/>
+          <line x1="9" y1="8" x2="15" y2="8"/>
+          <line x1="17" y1="16" x2="23" y2="16"/>
+        </svg>
+        Réglages
+      </button>
+    </div>
+  </div>
+
+  <!-- Bottom sheet (hidden by default) -->
+  <div id="bottom-sheet" role="dialog" aria-modal="true" aria-label="Réglages" hidden>
+    <div id="bs-backdrop"></div>
+    <div id="bs-panel">
+
+      <!-- Drag handle -->
+      <div class="bs-handle-wrap" aria-hidden="true">
+        <div class="bs-handle"></div>
+      </div>
+
+      <div class="bs-body">
+
+        <!-- Header -->
+        <div class="bs-header">
+          <span class="bs-title">Réglages</span>
+          <button id="bs-close" class="bs-close-btn" aria-label="Fermer les réglages">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Mode -->
+        <section class="bs-section">
+          <p class="bs-section-label">Mode</p>
+          <div class="bs-btn-group" role="radiogroup" aria-label="Mode de colorisation">
+            <button class="mode-btn sheet-btn" role="radio" aria-checked="true"  data-mode="syllabe">Syllabe</button>
+            <button class="mode-btn sheet-btn" role="radio" aria-checked="false" data-mode="mot">Mot</button>
+            <button class="mode-btn sheet-btn" role="radio" aria-checked="false" data-mode="ligne">Ligne</button>
+          </div>
+        </section>
+
+        <!-- Palette -->
+        <section class="bs-section">
+          <p class="bs-section-label">Couleurs</p>
+          <div class="bs-btn-group" role="radiogroup" aria-label="Palette de couleurs">
+            <button class="palette-btn active sheet-btn" role="radio" aria-checked="true"  data-palette="doux" aria-label="Palette douce">
+              <span class="swatch" style="background:#0e7490" aria-hidden="true"></span>
+              <span class="swatch" style="background:#92400e" aria-hidden="true"></span>
+              Doux
+            </button>
+            <button class="palette-btn sheet-btn" role="radio" aria-checked="false" data-palette="classique" aria-label="Palette classique">
+              <span class="swatch" style="background:#1a56db" aria-hidden="true"></span>
+              <span class="swatch" style="background:#d03801" aria-hidden="true"></span>
+              Classique
+            </button>
+            <button class="palette-btn sheet-btn" role="radio" aria-checked="false" data-palette="violet" aria-label="Palette violet">
+              <span class="swatch" style="background:#5b21b6" aria-hidden="true"></span>
+              <span class="swatch" style="background:#0f766e" aria-hidden="true"></span>
+              Violet
+            </button>
+          </div>
+        </section>
+
+        <!-- Silent letters -->
+        <section class="bs-section">
+          <button
+            data-silent-toggle
+            class="silent-toggle-btn sheet-btn"
+            aria-pressed="false"
+            aria-label="Afficher les lettres muettes en gris"
+          >
+            <span style="color:#b8b0a0" aria-hidden="true">e</span>
+            Lettres muettes
+          </button>
+        </section>
+
+        <!-- Print -->
+        <section class="bs-section">
+          <button data-print class="action-btn sheet-btn" aria-label="Imprimer le texte coloré">
+            Imprimer
+          </button>
+        </section>
+
+      </div>
+    </div>
+  </div>
+
 </main>
 
 <script>
   import { colorizeText } from '../lib/colorize';
   import type { ColorizeMode, PaletteKey } from '../lib/types';
 
-  const textarea = document.getElementById('input-textarea') as HTMLTextAreaElement | null;
-  const outputPanel = document.getElementById('output-panel') as HTMLDivElement | null;
-  const copyBtn = document.getElementById('copy-btn') as HTMLButtonElement | null;
-  const printBtn = document.getElementById('print-btn') as HTMLButtonElement | null;
-  const silentBtn = document.getElementById('silent-btn') as HTMLButtonElement | null;
+  const textarea    = document.getElementById('input-textarea') as HTMLTextAreaElement | null;
+  const outputPanel = document.getElementById('output-panel')   as HTMLDivElement | null;
 
   if (!textarea || !outputPanel) {
     console.error('[Dyscolor] Elements manquants dans le DOM — rechargez la page.');
@@ -120,12 +229,61 @@
       outputPanel!.innerHTML = colorizeText(text, currentMode, currentPalette, showSilent);
     }
 
-    // Silent letters toggle
-    silentBtn?.addEventListener('click', () => {
-      showSilent = !showSilent;
-      silentBtn.classList.toggle('active', showSilent);
-      silentBtn.setAttribute('aria-pressed', String(showSilent));
-      render();
+    // Update mobile status chips
+    function updateChips() {
+      const modeLabels:    Record<string, string> = { syllabe: 'Syllabe', mot: 'Mot', ligne: 'Ligne' };
+      const paletteLabels: Record<string, string> = { doux: 'Doux', classique: 'Classique', violet: 'Violet' };
+      const modeChip    = document.getElementById('mobile-mode-chip');
+      const paletteChip = document.getElementById('mobile-palette-chip');
+      if (modeChip)    modeChip.textContent    = modeLabels[currentMode]       ?? currentMode;
+      if (paletteChip) paletteChip.textContent = paletteLabels[currentPalette] ?? currentPalette;
+    }
+
+    // ── Bottom sheet ──────────────────────────────────────────────────────
+    const bottomSheet = document.getElementById('bottom-sheet');
+    const bsPanel     = document.getElementById('bs-panel');
+    const bsBackdrop  = document.getElementById('bs-backdrop');
+    const bsClose     = document.getElementById('bs-close');
+    const optionsBtn  = document.getElementById('options-btn');
+
+    function openSheet() {
+      if (!bottomSheet) return;
+      bottomSheet.removeAttribute('hidden');
+      // Double rAF ensures display:block is applied before CSS transition starts
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        bottomSheet.classList.add('open');
+      }));
+      optionsBtn?.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeSheet() {
+      if (!bottomSheet) return;
+      bottomSheet.classList.remove('open');
+      optionsBtn?.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+      bsPanel?.addEventListener('transitionend', () => {
+        bottomSheet.setAttribute('hidden', '');
+      }, { once: true });
+    }
+
+    optionsBtn?.addEventListener('click', openSheet);
+    bsBackdrop?.addEventListener('click', closeSheet);
+    bsClose?.addEventListener('click', closeSheet);
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !bottomSheet?.hasAttribute('hidden')) closeSheet();
+    });
+
+    // ── Silent toggle (desktop + sheet) ──────────────────────────────────
+    document.querySelectorAll<HTMLButtonElement>('[data-silent-toggle]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        showSilent = !showSilent;
+        document.querySelectorAll('[data-silent-toggle]').forEach(b => {
+          b.classList.toggle('active', showSilent);
+          b.setAttribute('aria-pressed', String(showSilent));
+        });
+        render();
+      });
     });
 
     // Input debounce
@@ -134,7 +292,7 @@
       debounceTimer = setTimeout(render, 120);
     });
 
-    // Mode buttons (radiogroup: update aria-checked + active class)
+    // Mode buttons (desktop + sheet — querySelectorAll handles both)
     document.querySelectorAll<HTMLButtonElement>('[data-mode]').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('[data-mode]').forEach(b => {
@@ -144,11 +302,12 @@
         btn.classList.add('active');
         btn.setAttribute('aria-checked', 'true');
         currentMode = btn.dataset.mode as ColorizeMode;
+        updateChips();
         render();
       });
     });
 
-    // Palette buttons (radiogroup: update aria-checked + active class)
+    // Palette buttons (desktop + sheet)
     document.querySelectorAll<HTMLButtonElement>('[data-palette]').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('[data-palette]').forEach(b => {
@@ -158,15 +317,17 @@
         btn.classList.add('active');
         btn.setAttribute('aria-checked', 'true');
         currentPalette = btn.dataset.palette as PaletteKey;
+        updateChips();
         render();
       });
     });
 
-    // Copy rich text (text/html + text/plain) so Pages/Word render colours
-    copyBtn?.addEventListener('click', async () => {
+    // Copy (desktop toolbar + mobile bar)
+    async function doCopy() {
       if (!textarea.value.trim()) return;
-      const html = outputPanel!.innerHTML;
+      const html  = outputPanel!.innerHTML;
       const plain = outputPanel!.innerText;
+      const copyBtns = document.querySelectorAll<HTMLButtonElement>('[data-copy]');
       try {
         await navigator.clipboard.write([
           new ClipboardItem({
@@ -174,19 +335,23 @@
             'text/plain': new Blob([plain], { type: 'text/plain' }),
           }),
         ]);
-        const orig = copyBtn!.textContent;
-        copyBtn!.textContent = 'Copié !';
-        setTimeout(() => { copyBtn!.textContent = orig; }, 1500);
+        copyBtns.forEach(btn => {
+          const orig = btn.textContent!;
+          btn.textContent = 'Copié !';
+          setTimeout(() => { btn.textContent = orig; }, 1500);
+        });
       } catch {
-        // Fallback: select the output visually so Cmd+C works
         const range = document.createRange();
         range.selectNodeContents(outputPanel!);
         window.getSelection()?.removeAllRanges();
         window.getSelection()?.addRange(range);
       }
-    });
+    }
+    document.querySelectorAll('[data-copy]').forEach(btn => btn.addEventListener('click', doCopy));
 
-    // Print
-    printBtn?.addEventListener('click', () => window.print());
+    // Print (desktop toolbar + sheet)
+    document.querySelectorAll('[data-print]').forEach(btn => {
+      btn.addEventListener('click', () => window.print());
+    });
   }
 </script>

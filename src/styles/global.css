@@ -125,6 +125,149 @@ body {
   color: #92400e;
 }
 
+/* ── Mobile bottom bar chips ── */
+.mobile-chip {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.2rem 0.65rem;
+  border-radius: 9999px;
+  background: #f5f5f4;
+  color: #57534e;
+  border: 1.5px solid #e7e5e4;
+  white-space: nowrap;
+}
+
+/* ── Options / Réglages button (mobile bar) ── */
+.options-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.9rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: 1.5px solid #0e7490;
+  background: #0e7490;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.options-btn:hover {
+  background: #0c6680;
+  border-color: #0c6680;
+}
+
+/* ── Bottom sheet ── */
+#bottom-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+}
+#bottom-sheet[hidden] {
+  display: none;
+}
+
+#bs-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+#bottom-sheet.open #bs-backdrop {
+  opacity: 1;
+}
+
+#bs-panel {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #fff;
+  border-radius: 1.25rem 1.25rem 0 0;
+  max-height: 85vh;
+  overflow-y: auto;
+  transform: translateY(100%);
+  transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+}
+#bottom-sheet.open #bs-panel {
+  transform: translateY(0);
+}
+
+.bs-handle-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 0.75rem 0 0.5rem;
+}
+.bs-handle {
+  width: 2.5rem;
+  height: 0.25rem;
+  border-radius: 9999px;
+  background: #d6d3d1;
+}
+.bs-body {
+  padding: 0 1.5rem calc(1.5rem + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+.bs-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.bs-title {
+  font-weight: 600;
+  font-size: 1rem;
+  color: #1c1917;
+}
+.bs-close-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  border: none;
+  background: #f5f5f4;
+  color: #78716c;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.bs-close-btn:hover {
+  background: #e7e5e4;
+}
+.bs-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.bs-section-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #a8a29e;
+  margin: 0;
+}
+.bs-btn-group {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Sheet buttons: full-width, taller touch target */
+.sheet-btn {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding-top: 0.65rem;
+  padding-bottom: 0.65rem;
+}
+
 /* ── Print ── */
 @media print {
   #input-panel,
