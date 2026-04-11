@@ -288,6 +288,15 @@ body {
   }
 }
 
+/* ── Mobile / desktop visibility ── */
+#toolbar    { display: none; }
+#mobile-bar { display: block; }
+
+@media (min-width: 768px) {
+  #toolbar    { display: flex; }
+  #mobile-bar { display: none; }
+}
+
 /* ── Responsive height ── */
 @media (min-width: 768px) {
   main {
