@@ -5,6 +5,7 @@ dist/
 .env.*
 !.env.example
 .DS_Store
+.claude/settings.local.json
 *.log
 .sst/
 .sst/platform/
