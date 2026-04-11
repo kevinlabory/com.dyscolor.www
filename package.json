@@ -8,7 +8,9 @@
     "preview": "astro preview",
     "deploy": "sst deploy --stage production",
     "deploy:dev": "sst deploy --stage dev",
-    "gen:og": "node scripts/generate-og.mjs"
+    "gen:og": "node scripts/generate-og.mjs",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.2",
@@ -21,6 +23,7 @@
     "sharp": "^0.34.5",
     "sst": "^4.6.11",
     "tailwindcss": "^4.1.0",
-    "typescript": "^5.7.0"
+    "typescript": "^5.7.0",
+    "vitest": "^4.1.4"
   }
 }
