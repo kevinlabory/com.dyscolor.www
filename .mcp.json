@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "dyscolor": {
+      "command": "npx",
+      "args": ["tsx", "mcp-server.ts"]
+    }
+  }
+}
