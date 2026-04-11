@@ -10,6 +10,8 @@
     "deploy:dev": "sst deploy --stage dev",
     "gen:og": "node scripts/generate-og.mjs",
     "test": "vitest run",
+    "test:watch": "vitest",
+    "mcp": "tsx mcp-server.ts"
     "test:watch": "vitest"
   },
   "dependencies": {
@@ -18,11 +20,13 @@
     "hypher": "^0.2.5"
   },
   "devDependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
     "@tailwindcss/vite": "^4.1.0",
     "astro": "^5.5.0",
     "sharp": "^0.34.5",
     "sst": "^4.6.11",
     "tailwindcss": "^4.1.0",
+    "tsx": "^4.21.0",
     "typescript": "^5.7.0",
     "vitest": "^4.1.4"
   }
