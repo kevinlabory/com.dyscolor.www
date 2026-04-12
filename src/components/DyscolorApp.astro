@@ -10,7 +10,7 @@
       <textarea
         id="input-textarea"
         class="flex-1 w-full resize-none p-6 bg-transparent text-stone-700 text-lg leading-relaxed placeholder:text-stone-400 focus-visible:outline-2 focus-visible:outline-stone-400 focus-visible:outline-offset-[-2px]"
-        placeholder="Collez ou tapez votre texte ici…"
+        placeholder="Collez ici le texte de votre enfant ou élève…"
         spellcheck="false"
         autocomplete="off"
         style="min-height: 12rem;"
@@ -220,6 +220,12 @@
     let showSilent = false;
     let debounceTimer: ReturnType<typeof setTimeout>;
 
+    // Texte de démo : montre immédiatement ce que fait l'outil
+    const DEMO = `La maîtresse lit une histoire à voix haute. Les élèves écoutent en silence dans la salle de classe. Ensemble, ils apprennent à reconnaître les sons difficiles.`;
+    if (!textarea.value.trim()) {
+      textarea.value = DEMO;
+    }
+
     function render() {
       const text = textarea!.value;
       if (!text.trim()) {
@@ -353,5 +359,8 @@
     document.querySelectorAll('[data-print]').forEach(btn => {
       btn.addEventListener('click', () => window.print());
     });
+
+    // Render initial demo text
+    render();
   }
 </script>
