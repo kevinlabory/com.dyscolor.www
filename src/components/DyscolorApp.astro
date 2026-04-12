@@ -71,9 +71,9 @@
     <!-- Silent letters toggle -->
     <div class="flex items-center gap-1.5">
       <button
-        class="silent-toggle-btn"
+        class="silent-toggle-btn active"
         data-silent-toggle
-        aria-pressed="false"
+        aria-pressed="true"
         aria-label="Afficher les lettres muettes en gris"
       >
         <span style="color:#b8b0a0" aria-hidden="true">e</span> Lettres muettes
@@ -183,8 +183,8 @@
         <section class="bs-section">
           <button
             data-silent-toggle
-            class="silent-toggle-btn sheet-btn"
-            aria-pressed="false"
+            class="silent-toggle-btn sheet-btn active"
+            aria-pressed="true"
             aria-label="Afficher les lettres muettes en gris"
           >
             <span style="color:#b8b0a0" aria-hidden="true">e</span>
@@ -217,7 +217,7 @@
   } else {
     let currentMode: ColorizeMode = 'syllabe';
     let currentPalette: PaletteKey = 'doux';
-    let showSilent = false;
+    let showSilent = true;
     let debounceTimer: ReturnType<typeof setTimeout>;
 
     // Texte de démo : montre immédiatement ce que fait l'outil
