@@ -272,6 +272,8 @@ body {
 @media print {
   #input-panel,
   #toolbar,
+  #mobile-bar,
+  #bottom-sheet,
   header {
     display: none !important;
   }
