@@ -204,6 +204,29 @@ export default $config({
               Resource: "*",
             },
             {
+              Sid: "Lambda",
+              Effect: "Allow",
+              Action: [
+                "lambda:CreateFunction", "lambda:UpdateFunctionCode",
+                "lambda:UpdateFunctionConfiguration", "lambda:DeleteFunction",
+                "lambda:GetFunction", "lambda:GetFunctionConfiguration",
+                "lambda:ListFunctions", "lambda:ListVersionsByFunction",
+                "lambda:PublishVersion", "lambda:TagResource", "lambda:UntagResource",
+                "lambda:ListTags", "lambda:GetPolicy", "lambda:AddPermission",
+                "lambda:RemovePermission",
+                "lambda:CreateFunctionUrlConfig", "lambda:UpdateFunctionUrlConfig",
+                "lambda:DeleteFunctionUrlConfig", "lambda:GetFunctionUrlConfig",
+                "lambda:ListFunctionUrlConfigs",
+                "lambda:PutFunctionConcurrency", "lambda:DeleteFunctionConcurrency",
+                "lambda:GetFunctionConcurrency",
+                "iam:CreateRole", "iam:AttachRolePolicy", "iam:PassRole",
+                "logs:CreateLogGroup", "logs:DeleteLogGroup",
+                "logs:PutRetentionPolicy", "logs:DeleteRetentionPolicy",
+                "logs:DescribeLogGroups",
+              ],
+              Resource: "*",
+            },
+            {
               Sid: "Budgets",
               Effect: "Allow",
               // budgets:* est sans risque : ce service ne peut que lire/écrire
@@ -306,6 +329,28 @@ export default $config({
       });
     }
 
+    // ── MCP Secret ───────────────────────────────────────────────────────────
+    const mcpApiKey = new sst.Secret('McpApiKey');
+
+    // ── MCP Lambda Function ───────────────────────────────────────────────────
+    const mcpFn = new sst.aws.Function('DyscolorMcp', {
+      handler: 'mcp-lambda.handler',
+      runtime: 'nodejs22.x',
+      memory: '256 MB',
+      timeout: '15 seconds',
+      // Concurrence réservée : cap dur à 10 invocations parallèles (FinOps + anti-abus)
+      reservedConcurrencies: 10,
+      url: true,
+      environment: {
+        MCP_API_KEY: mcpApiKey.value,
+      },
+      // Logs CloudWatch : rétention 7 jours
+      logging: { retention: '1 week' },
+      // IAM role minimal : accès CloudWatch Logs uniquement (pas d'accès aux autres services)
+      permissions: [],
+      link: [],
+    });
+
     // ── Zone DNS (production uniquement — pas nécessaire en dev) ─────────────
     const zone = isProd
       ? new aws.route53.Zone("DyscolorZone", { name: "dyscolor.com" })
@@ -373,6 +418,7 @@ export default $config({
 
     return {
       url: site.url,
+      mcpUrl: mcpFn.url,
       ...(zone ? { nameservers: zone.nameServers } : {}),
       ...(githubRoleArn ? { githubRoleArn } : {}),
     };
