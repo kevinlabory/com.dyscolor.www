@@ -207,19 +207,44 @@ export default $config({
               Sid: "Lambda",
               Effect: "Allow",
               Action: [
+                // Lifecycle
                 "lambda:CreateFunction", "lambda:UpdateFunctionCode",
                 "lambda:UpdateFunctionConfiguration", "lambda:DeleteFunction",
+                // Read
                 "lambda:GetFunction", "lambda:GetFunctionConfiguration",
+                "lambda:GetFunctionCodeSigningConfig",
+                "lambda:GetFunctionConcurrency",
+                "lambda:GetFunctionEventInvokeConfig",
+                "lambda:GetPolicy",
                 "lambda:ListFunctions", "lambda:ListVersionsByFunction",
-                "lambda:PublishVersion", "lambda:TagResource", "lambda:UntagResource",
-                "lambda:ListTags", "lambda:GetPolicy", "lambda:AddPermission",
-                "lambda:RemovePermission",
+                "lambda:ListTags",
+                // Publish
+                "lambda:PublishVersion",
+                // Permissions
+                "lambda:AddPermission", "lambda:RemovePermission",
+                // Tags
+                "lambda:TagResource", "lambda:UntagResource",
+                // URL
                 "lambda:CreateFunctionUrlConfig", "lambda:UpdateFunctionUrlConfig",
                 "lambda:DeleteFunctionUrlConfig", "lambda:GetFunctionUrlConfig",
                 "lambda:ListFunctionUrlConfigs",
+                // Concurrency
                 "lambda:PutFunctionConcurrency", "lambda:DeleteFunctionConcurrency",
-                "lambda:GetFunctionConcurrency",
+              ],
+              Resource: "*",
+            },
+            {
+              Sid: "LambdaIam",
+              Effect: "Allow",
+              Action: [
                 "iam:CreateRole", "iam:AttachRolePolicy", "iam:PassRole",
+              ],
+              Resource: "*",
+            },
+            {
+              Sid: "CloudWatchLogs",
+              Effect: "Allow",
+              Action: [
                 "logs:CreateLogGroup", "logs:DeleteLogGroup",
                 "logs:CreateLogStream", "logs:DeleteLogStream",
                 "logs:PutLogEvents", "logs:DescribeLogStreams",
