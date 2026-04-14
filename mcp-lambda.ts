@@ -28,16 +28,30 @@ export const handler = async (event: {
     ? Buffer.from(event.body, 'base64').toString('utf-8')
     : (event.body ?? '');
 
-  const headers = new Headers(
-    Object.fromEntries(
-      Object.entries(event.headers ?? {}).map(([k, v]) => [k.toLowerCase(), v])
-    )
+  const eventHeaders = Object.fromEntries(
+    Object.entries(event.headers ?? {}).map(([k, v]) => [k.toLowerCase(), v])
   );
-  // Lambda Function URLs don't send a real URL — provide a placeholder
+
+  // Construire les headers MCP explicitement pour éviter les conflits de
+  // content-type qu'undici peut introduire avec les bodies string.
+  const requestHeaders = new Headers({
+    'content-type': 'application/json',
+    'accept': eventHeaders['accept'] ?? 'application/json, text/event-stream',
+  });
+  // Passer les headers de protocole MCP si présents
+  for (const h of ['mcp-session-id', 'last-event-id', 'mcp-protocol-version']) {
+    if (eventHeaders[h]) requestHeaders.set(h, eventHeaders[h]);
+  }
+
+  // Utiliser un Blob pour éviter que le body string n'écrase le content-type
+  const bodyInit = (method !== 'GET' && method !== 'HEAD' && bodyRaw)
+    ? new Blob([bodyRaw], { type: 'application/json' })
+    : undefined;
+
   const request = new Request('https://dyscolor.mcp/mcp', {
     method,
-    headers,
-    body: method !== 'GET' && method !== 'HEAD' ? bodyRaw : undefined,
+    headers: requestHeaders,
+    body: bodyInit,
   });
 
   // ── MCP server (one per invocation — stateless) ───────────────────────────
