@@ -561,6 +561,99 @@ export default $config({
           evaluateTargetHealth: false,
         }],
       }, { dependsOn: [apexCdn] });
+
+      // ── mcp.dyscolor.com → Lambda MCP ────────────────────────────────────────
+      // Distribution CloudFront indépendante (hors SST StaticSite).
+      // Pas de cache, Authorization forwarded vers la Lambda.
+      const mcpCert = new aws.acm.Certificate("McpCert", {
+        domainName: "mcp.dyscolor.com",
+        validationMethod: "DNS",
+      }, { provider: usEast1 });
+
+      const mcpCertValidationRecord = new aws.route53.Record("McpCertValidationRecord", {
+        zoneId: zone.id,
+        name:    mcpCert.domainValidationOptions.apply(o => o[0].resourceRecordName!),
+        type:    mcpCert.domainValidationOptions.apply(o => o[0].resourceRecordType!),
+        records: mcpCert.domainValidationOptions.apply(o => [o[0].resourceRecordValue!]),
+        ttl: 60,
+        allowOverwrite: true,
+      });
+
+      const mcpCertValidated = new aws.acm.CertificateValidation("McpCertValidated", {
+        certificateArn: mcpCert.arn,
+        validationRecordFqdns: [mcpCertValidationRecord.fqdn],
+      }, { provider: usEast1 });
+
+      const mcpCdn = new aws.cloudfront.Distribution("McpCdn", {
+        enabled: true,
+        comment: "mcp.dyscolor.com → dyscolor MCP Lambda",
+        aliases: ["mcp.dyscolor.com"],
+        origins: [{
+          // Extrait le hostname de la Lambda Function URL (sans protocole ni slash final)
+          domainName: mcpFn.url.apply(url => new URL(url).hostname),
+          originId: "mcp-lambda",
+          customOriginConfig: {
+            httpPort: 80,
+            httpsPort: 443,
+            originProtocolPolicy: "https-only",
+            originSslProtocols: ["TLSv1.2"],
+          },
+        }],
+        defaultCacheBehavior: {
+          targetOriginId: "mcp-lambda",
+          viewerProtocolPolicy: "https-only",
+          // Toutes les méthodes HTTP (MCP utilise POST)
+          allowedMethods: ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"],
+          cachedMethods: ["GET", "HEAD"],
+          forwardedValues: {
+            queryString: true,
+            // Forward les headers nécessaires au protocole MCP + auth
+            headers: [
+              "Authorization",
+              "Content-Type",
+              "Accept",
+              "Mcp-Session-Id",
+              "Last-Event-Id",
+              "Mcp-Protocol-Version",
+            ],
+            cookies: { forward: "none" },
+          },
+          // Pas de cache : chaque requête MCP est unique
+          defaultTtl: 0,
+          maxTtl: 0,
+          minTtl: 0,
+        },
+        restrictions: { geoRestriction: { restrictionType: "none" } },
+        viewerCertificate: {
+          acmCertificateArn: mcpCertValidated.certificateArn,
+          sslSupportMethod: "sni-only",
+          minimumProtocolVersion: "TLSv1.2_2021",
+        },
+        priceClass: "PriceClass_100",
+        httpVersion: "http2and3",
+      }, { dependsOn: [mcpCertValidated] });
+
+      new aws.route53.Record("McpRecordA", {
+        zoneId: zone.id,
+        name: "mcp.dyscolor.com",
+        type: "A",
+        aliases: [{
+          name: mcpCdn.domainName,
+          zoneId: mcpCdn.hostedZoneId,
+          evaluateTargetHealth: false,
+        }],
+      });
+
+      new aws.route53.Record("McpRecordAAAA", {
+        zoneId: zone.id,
+        name: "mcp.dyscolor.com",
+        type: "AAAA",
+        aliases: [{
+          name: mcpCdn.domainName,
+          zoneId: mcpCdn.hostedZoneId,
+          evaluateTargetHealth: false,
+        }],
+      });
     }
 
     return {
