@@ -1,8 +1,11 @@
 {
   "mcpServers": {
     "dyscolor": {
-      "command": "npx",
-      "args": ["tsx", "mcp-server.ts"]
+      "type": "http",
+      "url": "https://mcp.dyscolor.com/",
+      "headers": {
+        "Authorization": "Bearer REMPLACER_PAR_LA_CLE_MCP_API_KEY"
+      }
     }
   }
 }
