@@ -174,6 +174,77 @@ describe('getSilentIndices', () => {
     expect(idx).not.toContain(5); // 'e'
   });
 
+  // ── Rule 8 — final `d` ─────────────────────────────────────────────────────
+
+  it('Rule 8: marks final d in "grand" as silent', () => {
+    // g-r-a-n-d → index 4
+    expect(indices('grand')).toContain(4);
+  });
+
+  it('Rule 8: marks final d in "chaud" as silent', () => {
+    // c-h-a-u-d → index 4
+    expect(indices('chaud')).toContain(4);
+  });
+
+  it('Rule 8: marks final d in "pied" as silent', () => {
+    // p-i-e-d → index 3
+    expect(indices('pied')).toContain(3);
+  });
+
+  it('Rule 8: marks final d in "lourd" as silent', () => {
+    // l-o-u-r-d → index 4
+    expect(indices('lourd')).toContain(4);
+  });
+
+  it('Rule 8: exception — does NOT mark final d in "sud"', () => {
+    expect(indices('sud')).not.toContain(2);
+  });
+
+  // ── Rule 9 — final `g` ─────────────────────────────────────────────────────
+
+  it('Rule 9: marks final g in "sang" as silent', () => {
+    // s-a-n-g → index 3
+    expect(indices('sang')).toContain(3);
+  });
+
+  it('Rule 9: marks final g in "long" as silent', () => {
+    // l-o-n-g → index 3
+    expect(indices('long')).toContain(3);
+  });
+
+  it('Rule 9: marks final g in "rang" as silent', () => {
+    // r-a-n-g → index 3
+    expect(indices('rang')).toContain(3);
+  });
+
+  // ── Rule 10 — final `p` ────────────────────────────────────────────────────
+
+  it('Rule 10: marks final p in "beaucoup" as silent', () => {
+    // b-e-a-u-c-o-u-p → index 7
+    expect(indices('beaucoup')).toContain(7);
+  });
+
+  it('Rule 10: marks final p in "trop" as silent', () => {
+    // t-r-o-p → index 3
+    expect(indices('trop')).toContain(3);
+  });
+
+  it('Rule 10: marks final p in "loup" as silent', () => {
+    // l-o-u-p → index 3
+    expect(indices('loup')).toContain(3);
+  });
+
+  it('Rule 10: marks final p in "camp" as silent', () => {
+    // c-a-m-p → index 3
+    expect(indices('camp')).toContain(3);
+  });
+
+  it('Rule 10: exceptions — does NOT mark final p in PRONOUNCED_FINAL_P', () => {
+    for (const w of ['cap', 'gap', 'rap', 'top', 'stop', 'slip', 'clip']) {
+      expect(indices(w)).not.toContain(w.length - 1);
+    }
+  });
+
   // ── Cumulative / multi-rule ────────────────────────────────────────────────
 
   it('cumul: "hommes" activates rules 2 (initial h) and 6 (final s)', () => {

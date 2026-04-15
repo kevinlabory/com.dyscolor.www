@@ -11,6 +11,9 @@
  *  5. Final `t` (almost always silent — small exceptions list)
  *  6. Final `s` (usually silent — exceptions list for pronounced cases)
  *  7. `-aient` ending: `ent` fully silent (100 % verb form, no false positives)
+ *  8. Final `d` (almost always silent — exception: "sud")
+ *  9. Final `g` (always silent at primary-school level)
+ * 10. Final `p` (almost always silent — small exceptions list)
  *
  * Deliberately excluded (false positive rate too high without a POS tagger):
  *  - `-ent` present tense (parlent ✓ but agent/patient/prudent ✗)
@@ -31,6 +34,12 @@ const PRONOUNCED_FINAL_T = new Set(['sept', 'but', 'net', 'brut', 'dot', 'fat', 
 
 // Words where the final `s` IS pronounced (exceptions to rule 6).
 const PRONOUNCED_FINAL_S = new Set(['fils', 'sens', 'ours', 'mars', 'os', 'vis', 'bus', 'iris', 'bis', 'as']);
+
+// Words where the final `d` IS pronounced (exceptions to rule 8).
+const PRONOUNCED_FINAL_D = new Set(['sud']);
+
+// Words where the final `p` IS pronounced (exceptions to rule 10).
+const PRONOUNCED_FINAL_P = new Set(['cap', 'gap', 'rap', 'top', 'stop', 'slip', 'clip']);
 
 /**
  * Returns the set of character indices (within `word`) that are silent.
@@ -81,6 +90,24 @@ export function getSilentIndices(word: string): Set<number> {
     silent.add(len - 3); // e
     silent.add(len - 2); // n
     silent.add(len - 1); // t
+  }
+
+  // Rule 8 — final `d` (almost always silent in French)
+  // "grand" /gʁɑ̃/, "chaud" /ʃo/, "pied" /pje/, "lourd" /luʁ/, "canard", "bord"...
+  if (w[len - 1] === 'd' && len >= 2 && !PRONOUNCED_FINAL_D.has(w)) {
+    silent.add(len - 1);
+  }
+
+  // Rule 9 — final `g` (always silent at primary-school level)
+  // "sang" /sɑ̃/, "long" /lɔ̃/, "rang" /ʁɑ̃/, "poing" /pwɛ̃/, "bourg" /buʁ/
+  if (w[len - 1] === 'g' && len >= 2) {
+    silent.add(len - 1);
+  }
+
+  // Rule 10 — final `p` (almost always silent in French)
+  // "beaucoup" /boku/, "trop" /tʁo/, "loup" /lu/, "camp" /kɑ̃/, "sirop", "coup"...
+  if (w[len - 1] === 'p' && len >= 2 && !PRONOUNCED_FINAL_P.has(w)) {
+    silent.add(len - 1);
   }
 
   return silent;
