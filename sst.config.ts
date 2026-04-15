@@ -537,30 +537,30 @@ export default $config({
       }, { dependsOn: [site, apexCertValidated] });
 
       // Records Route53 : dyscolor.com apex → distribution de redirect
-      // allowOverwrite: true par sécurité si un record SST n'a pas encore été supprimé
-      new aws.route53.Record("ApexRedirectRecordA", {
+      // Noms distincts de la PR #16 pour forcer Pulumi à recréer les records
+      // (les anciennes ressources "ApexRedirectRecord*" étaient en désync d'état).
+      // Pas d'allowOverwrite : on laisse Pulumi gérer le cycle de vie proprement.
+      new aws.route53.Record("ApexRecordA", {
         zoneId: zone.id,
         name: "dyscolor.com",
         type: "A",
-        allowOverwrite: true,
         aliases: [{
           name: apexCdn.domainName,
           zoneId: apexCdn.hostedZoneId,
           evaluateTargetHealth: false,
         }],
-      }, { dependsOn: [site] });
+      }, { dependsOn: [apexCdn] });
 
-      new aws.route53.Record("ApexRedirectRecordAAAA", {
+      new aws.route53.Record("ApexRecordAAAA", {
         zoneId: zone.id,
         name: "dyscolor.com",
         type: "AAAA",
-        allowOverwrite: true,
         aliases: [{
           name: apexCdn.domainName,
           zoneId: apexCdn.hostedZoneId,
           evaluateTargetHealth: false,
         }],
-      }, { dependsOn: [site] });
+      }, { dependsOn: [apexCdn] });
     }
 
     return {
