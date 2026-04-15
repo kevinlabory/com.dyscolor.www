@@ -434,7 +434,6 @@ export default $config({
         ? {
             domain: {
               name: "www.dyscolor.com",
-              aliases: ["dyscolor.com"],
               dns: sst.aws.dns({ zone: zone.zoneId }),
             },
           }
@@ -448,6 +447,121 @@ export default $config({
         },
       },
     });
+
+    // ── Apex redirect : dyscolor.com → www.dyscolor.com ──────────────────────
+    // Distribution CloudFront indépendante — jamais touchée par le builder SST.
+    // dependsOn: [site] garantit que SST retire d'abord l'alias "dyscolor.com"
+    // de sa propre distribution avant qu'on crée la nôtre avec cet alias
+    // (CloudFront interdit deux distributions avec le même alias simultanément).
+    if (isProd && zone) {
+      // ACM exige que les certificats CloudFront soient dans us-east-1
+      const usEast1 = new aws.Provider("UsEast1Provider", { region: "us-east-1" });
+
+      const apexCert = new aws.acm.Certificate("ApexCert", {
+        domainName: "dyscolor.com",
+        validationMethod: "DNS",
+      }, { provider: usEast1 });
+
+      // CNAME de validation DNS dans Route53
+      const apexCertValidationRecord = new aws.route53.Record("ApexCertValidationRecord", {
+        zoneId: zone.id,
+        name:    apexCert.domainValidationOptions.apply(o => o[0].resourceRecordName!),
+        type:    apexCert.domainValidationOptions.apply(o => o[0].resourceRecordType!),
+        records: apexCert.domainValidationOptions.apply(o => [o[0].resourceRecordValue!]),
+        ttl: 60,
+        allowOverwrite: true,
+      });
+
+      // Attend que le certificat soit émis (~1-2 min)
+      const apexCertValidated = new aws.acm.CertificateValidation("ApexCertValidated", {
+        certificateArn: apexCert.arn,
+        validationRecordFqdns: [apexCertValidationRecord.fqdn],
+      }, { provider: usEast1 });
+
+      // CloudFront Function : 301 → www
+      const apexRedirectFn = new aws.cloudfront.Function("ApexRedirectFn", {
+        name: "dyscolor-apex-redirect",
+        runtime: "cloudfront-js-2.0",
+        publish: true,
+        code: [
+          "function handler(event) {",
+          "  return {",
+          "    statusCode: 301,",
+          "    statusDescription: 'Moved Permanently',",
+          "    headers: { location: { value: 'https://www.dyscolor.com' + event.request.uri } }",
+          "  };",
+          "}",
+        ].join("\n"),
+      });
+
+      // Distribution dédiée à l'apex (SST ne la gère pas, zéro risque de conflit builder)
+      const apexCdn = new aws.cloudfront.Distribution("ApexRedirectCdn", {
+        enabled: true,
+        comment: "dyscolor.com → www.dyscolor.com (301)",
+        aliases: ["dyscolor.com"],
+        origins: [{
+          domainName: "www.dyscolor.com",
+          originId: "www",
+          customOriginConfig: {
+            httpPort: 80,
+            httpsPort: 443,
+            originProtocolPolicy: "https-only",
+            originSslProtocols: ["TLSv1.2"],
+          },
+        }],
+        defaultCacheBehavior: {
+          targetOriginId: "www",
+          viewerProtocolPolicy: "https-only",
+          allowedMethods: ["GET", "HEAD"],
+          cachedMethods: ["GET", "HEAD"],
+          forwardedValues: {
+            queryString: false,
+            cookies: { forward: "none" },
+          },
+          defaultTtl: 86400,
+          maxTtl: 86400,
+          minTtl: 0,
+          functionAssociations: [{
+            eventType: "viewer-request",
+            functionArn: apexRedirectFn.arn,
+          }],
+        },
+        restrictions: { geoRestriction: { restrictionType: "none" } },
+        viewerCertificate: {
+          acmCertificateArn: apexCertValidated.certificateArn,
+          sslSupportMethod: "sni-only",
+          minimumProtocolVersion: "TLSv1.2_2021",
+        },
+        priceClass: "PriceClass_100",
+        httpVersion: "http2and3",
+      }, { dependsOn: [site, apexCertValidated] });
+
+      // Records Route53 : dyscolor.com apex → distribution de redirect
+      // allowOverwrite: true par sécurité si un record SST n'a pas encore été supprimé
+      new aws.route53.Record("ApexRedirectRecordA", {
+        zoneId: zone.id,
+        name: "dyscolor.com",
+        type: "A",
+        allowOverwrite: true,
+        aliases: [{
+          name: apexCdn.domainName,
+          zoneId: apexCdn.hostedZoneId,
+          evaluateTargetHealth: false,
+        }],
+      }, { dependsOn: [site] });
+
+      new aws.route53.Record("ApexRedirectRecordAAAA", {
+        zoneId: zone.id,
+        name: "dyscolor.com",
+        type: "AAAA",
+        allowOverwrite: true,
+        aliases: [{
+          name: apexCdn.domainName,
+          zoneId: apexCdn.hostedZoneId,
+          evaluateTargetHealth: false,
+        }],
+      }, { dependsOn: [site] });
+    }
 
     return {
       url: site.url,
