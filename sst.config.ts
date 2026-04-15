@@ -424,31 +424,6 @@ export default $config({
       }
     );
 
-    // ── CloudFront Function : redirect dyscolor.com → www.dyscolor.com ────────
-    const wwwRedirectFn = isProd
-      ? new aws.cloudfront.Function("WwwRedirect", {
-          name: `dyscolor-www-redirect-${$app.stage}`,
-          runtime: "cloudfront-js-2.0",
-          publish: true,
-          code: `
-async function handler(event) {
-  const host = event.request.headers.host.value;
-  if (host === 'dyscolor.com') {
-    return {
-      statusCode: 301,
-      statusDescription: 'Moved Permanently',
-      headers: {
-        location: { value: 'https://www.dyscolor.com' + event.request.uri },
-        'cache-control': { value: 'max-age=3600' },
-      },
-    };
-  }
-  return event.request;
-}
-`,
-        })
-      : undefined;
-
     // ── Site statique (tous les stages) ──────────────────────────────────────
     const site = new sst.aws.StaticSite("DyscolorSite", {
       build: { command: "npm run build", output: "dist" },
@@ -469,14 +444,6 @@ async function handler(event) {
           args.defaultCacheBehavior = {
             ...(args.defaultCacheBehavior as object),
             responseHeadersPolicyId: headersPolicy.id,
-            ...(wwwRedirectFn
-              ? {
-                  functionAssociations: [{
-                    eventType: "viewer-request",
-                    functionArn: wwwRedirectFn.arn,
-                  }],
-                }
-              : {}),
           } as typeof args.defaultCacheBehavior;
         },
       },
