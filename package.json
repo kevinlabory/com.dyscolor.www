@@ -2,6 +2,7 @@
   "name": "com.dyscolor.www",
   "type": "module",
   "version": "0.1.0",
+  "workspaces": ["packages/*"],
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
@@ -15,8 +16,7 @@
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.2",
-    "hyphenation.fr": "^0.2.1",
-    "hypher": "^0.2.5"
+    "@dyscolor/syllabify-fr": "*"
   },
   "devDependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
