@@ -63,13 +63,43 @@ describe('syllabify', () => {
     expect(syllabify('mm')).toEqual(['mm']);
   });
 
-  // ── Words with accented vowels ─────────────────────────────────────────────
+  // ── "ille" grapheme (/ij/) must NOT be split on ll ────────────────────────
 
-  it('keeps étoile as one piece when no break found', () => {
-    expect(syllabify('étoile')).toEqual(['étoile']);
+  it('does not split "ille" grapheme in fille (one syllable)', () => {
+    expect(syllabify('fille')).toEqual(['fille']);
   });
 
-  it('keeps école as one piece when no break found', () => {
-    expect(syllabify('école')).toEqual(['école']);
+  it('does not split "ille" grapheme in ville (one syllable)', () => {
+    expect(syllabify('ville')).toEqual(['ville']);
+  });
+
+  it('does not split "ille" grapheme in grille (one syllable)', () => {
+    expect(syllabify('grille')).toEqual(['grille']);
+  });
+
+  it('splits famille correctly: fa + mille (not fa + mil + le)', () => {
+    expect(syllabify('famille')).toEqual(['fa', 'mille']);
+  });
+
+  it('still splits belle correctly: bel + le ("elle" is not "ille")', () => {
+    expect(syllabify('belle')).toEqual(['bel', 'le']);
+  });
+
+  it('still splits salle correctly: sal + le', () => {
+    expect(syllabify('salle')).toEqual(['sal', 'le']);
+  });
+
+  // ── é-initial fallback (Hypher typographic min-length workaround) ──────────
+
+  it('splits école into é + cole', () => {
+    expect(syllabify('école')).toEqual(['é', 'cole']);
+  });
+
+  it('splits étoile into é + toile', () => {
+    expect(syllabify('étoile')).toEqual(['é', 'toile']);
+  });
+
+  it('splits état into é + tat', () => {
+    expect(syllabify('état')).toEqual(['é', 'tat']);
   });
 });

@@ -18,10 +18,18 @@ const VOWEL = /[aeiouyàâäéèêëîïôùûüÿœæ]/i;
  *
  * Rule: given a syllable piece, if it contains VCC (same letter twice)V,
  * split between the two identical consonants.
+ *
+ * Exception: the French grapheme "ille" (/ij/) must NOT be split.
+ * "mille", "fille", "grille", "oreille" (→ "reille") all end in "ille"
+ * and represent a single phoneme. Compare: "belle" ends in "elle" (not
+ * "ille") and is correctly split → ["bel", "le"].
  */
 function splitDoubles(piece: string): string[] {
   const match = /([bcdfghjklmnpqrstvwxz])\1/i.exec(piece);
   if (!match) return [piece];
+
+  // Preserve the "ille" grapheme /ij/ — never split on ll when piece ends in "ille"
+  if (match[1]?.toLowerCase() === 'l' && /ille$/i.test(piece)) return [piece];
 
   const left  = piece.slice(0, match.index + 1); // up to and including first consonant
   const right = piece.slice(match.index + 1);     // from second consonant onwards
@@ -35,6 +43,22 @@ function splitDoubles(piece: string): string[] {
 }
 
 /**
+ * Fallback for words starting with "é" that Hypher leaves unsplit.
+ *
+ * Hypher is typographic: it requires ≥ 2 characters before a break point,
+ * so "é-cole" (1 char before break) is never produced. Pedagogically the
+ * split IS needed: "é-cole", "é-toile", "é-tat".
+ *
+ * Only targets "é" (the most frequent case). Only fires when Hypher
+ * returned no break (pieces.length === 1).
+ */
+function splitInitialE(word: string): string[] {
+  const m = /^(é)([bcdfghjklmnpqrstvwxzç]+[aeiouyàâäéèêëîïôùûüÿœæ].+)$/i.exec(word);
+  if (m) return [m[1]!, m[2]!];
+  return [word];
+}
+
+/**
  * Split a single word into its syllables.
  * Punctuation attached to the word should be stripped before calling.
  * Returns an array with at least one element.
@@ -43,5 +67,12 @@ export function syllabify(word: string): string[] {
   if (!word) return [];
   const raw = engine.hyphenate(word) as string[];
   const pieces = raw.length > 0 ? raw : [word];
+
+  // If Hypher found no break, try the accent-initial fallback
+  if (pieces.length === 1) {
+    const split = splitInitialE(word);
+    if (split.length > 1) return split.flatMap(splitDoubles);
+  }
+
   return pieces.flatMap(splitDoubles);
 }
