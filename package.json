@@ -14,6 +14,9 @@
     "test:watch": "vitest",
     "mcp": "tsx mcp-server.ts"
   },
+  "overrides": {
+    "vite": "^7"
+  },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.2",
     "@dyscolor/syllabify-fr": "*"
