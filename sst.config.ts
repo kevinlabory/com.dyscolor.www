@@ -132,6 +132,24 @@ export default $config({
                 "cloudfront:ListResponseHeadersPolicies",
                 "cloudfront:CreateInvalidation",
                 "cloudfront:GetInvalidation", "cloudfront:ListInvalidations",
+                // KeyValueStore (utilisé par SST StaticSite pour le routing/headers)
+                "cloudfront:CreateKeyValueStore", "cloudfront:UpdateKeyValueStore",
+                "cloudfront:DeleteKeyValueStore", "cloudfront:DescribeKeyValueStore",
+                "cloudfront:ListKeyValueStores",
+              ],
+              Resource: "*",
+            },
+            {
+              Sid: "CloudFrontKvsData",
+              Effect: "Allow",
+              // Opérations data-plane sur les KeyValueStore (namespace IAM séparé)
+              Action: [
+                "cloudfront-keyvaluestore:DescribeKeyValueStore",
+                "cloudfront-keyvaluestore:GetKey",
+                "cloudfront-keyvaluestore:ListKeys",
+                "cloudfront-keyvaluestore:PutKey",
+                "cloudfront-keyvaluestore:UpdateKeys",
+                "cloudfront-keyvaluestore:DeleteKey",
               ],
               Resource: "*",
             },
