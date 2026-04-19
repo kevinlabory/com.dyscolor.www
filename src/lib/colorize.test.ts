@@ -56,12 +56,14 @@ describe('colorizeText — characterization (palette: doux)', () => {
 
   it('mode syllabe — "L\'école est belle." — apostrophe, accent, trailing dot', () => {
     // "L'" → syllable of "L", counter 0 → C1
-    // "école" → one syllable, counter 1 → C2
-    // "est" → one syllable, counter 2 → C1
-    // "bel" → counter 3 → C2; "le." → counter 4 → C1
+    // "école" → 3 syllables (new CV algo): é(C2), co(C1), le(C2)
+    // "est" → one syllable, counter 4 → C1
+    // "bel" → counter 5 → C2; "le." → counter 6 → C1
     expect(colorizeText("L'école est belle.", 'syllabe', 'doux')).toBe(
       `<span style="color:${C1}">L'</span>` +
-      `<span style="color:${C2}">école</span>` +
+      `<span style="color:${C2}">é</span>` +
+      `<span style="color:${C1}">co</span>` +
+      `<span style="color:${C2}">le</span>` +
       `<span> </span>` +
       `<span style="color:${C1}">est</span>` +
       `<span> </span>` +
@@ -101,15 +103,15 @@ describe('colorizeText — characterization (palette: doux)', () => {
   // ── Multiline: mode syllabe — newline becomes <br> ─────────────────────────
 
   it('mode syllabe — newline becomes <br>, counter continues across lines', () => {
-    // Bon(C1) jour(C2) <br> Mon(C1) de... wait:
-    // bonjour → bon(C1, count=1) jour(C2, count=2)
+    // bonjour → Bon(C1, count=0) jour(C2, count=1)
     // <br> for \n token
-    // monde → monde(C1, count=3) — monde is one piece
+    // Monde → Mon(C1, count=2) de(C2, count=3) — new CV algo splits Mon|de
     expect(colorizeText('Bonjour\nMonde', 'syllabe', 'doux')).toBe(
       `<span style="color:${C1}">Bon</span>` +
       `<span style="color:${C2}">jour</span>` +
       `<br>` +
-      `<span style="color:${C1}">Monde</span>`,
+      `<span style="color:${C1}">Mon</span>` +
+      `<span style="color:${C2}">de</span>`,
     );
   });
 
