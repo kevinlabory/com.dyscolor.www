@@ -2,6 +2,7 @@
   "name": "com.dyscolor.www",
   "type": "module",
   "version": "0.1.0",
+  "license": "GPL-3.0-or-later",
   "workspaces": [
     "packages/*"
   ],

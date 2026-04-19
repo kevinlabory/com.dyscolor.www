@@ -2,6 +2,7 @@
   "name": "@dyscolor/syllabify-fr",
   "version": "0.1.0",
   "type": "module",
+  "license": "GPL-3.0-or-later",
   "description": "French pedagogical syllabification and silent letter detection for dyslexia reading aids",
   "main": "./src/index.ts",
   "exports": {
