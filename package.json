@@ -2,7 +2,9 @@
   "name": "com.dyscolor.www",
   "type": "module",
   "version": "0.1.0",
-  "workspaces": ["packages/*"],
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
@@ -12,7 +14,8 @@
     "gen:og": "node scripts/generate-og.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
-    "mcp": "tsx mcp-server.ts"
+    "mcp": "tsx mcp-server.ts",
+    "build:wasm": "wasm-pack build \"${SYLLABIFY_RS_PATH:-../syllabify-fr}/wasm\" --target bundler --out-dir \"$(pwd)/packages/syllabify-fr-wasm\" && npm install"
   },
   "overrides": {
     "vite": "^7"
@@ -30,6 +33,7 @@
     "tailwindcss": "^4.1.0",
     "tsx": "^4.21.0",
     "typescript": "^5.7.0",
+    "vite-plugin-wasm": "^3.6.0",
     "vitest": "^4.1.4"
   }
 }
