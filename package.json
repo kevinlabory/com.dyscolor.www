@@ -15,15 +15,15 @@
     "gen:og": "node scripts/generate-og.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
-    "mcp": "tsx mcp-server.ts",
-    "build:wasm": "wasm-pack build \"${SYLLABIFY_RS_PATH:-../syllabify-fr}/wasm\" --target bundler --out-dir \"$(pwd)/packages/syllabify-fr-wasm\" && npm install"
+    "mcp": "tsx mcp-server.ts"
   },
   "overrides": {
     "vite": "^7"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.2",
-    "@dyscolor/syllabify-fr": "*"
+    "@dyscolor/syllabify-fr": "*",
+    "@dyscolor/syllabify-fr-wasm": "^0.5.0"
   },
   "devDependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
