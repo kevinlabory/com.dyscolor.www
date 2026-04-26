@@ -71,4 +71,4 @@ sst.config.ts
 
 ## Licence
 
-MIT
+[GPL-3.0-or-later](LICENSE) — hérité de [syllabify-fr](https://github.com/kevinlabory/syllabify-fr) (port de LireCouleur 6).
