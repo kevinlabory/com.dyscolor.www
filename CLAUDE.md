@@ -60,6 +60,7 @@ Tout changement passe par :
 | `hotfix/` | Correctif urgent sur prod |
 | `docs/` | Documentation uniquement |
 | `chore/` | Maintenance, dépendances |
+| `release/` | Bump de version |
 
 ### Messages de commit
 
@@ -70,6 +71,7 @@ feat: ajoute le mode ligne
 fix(csp): autorise wasm-unsafe-eval
 docs: met à jour la licence dans le README
 chore: met à jour @dyscolor/syllabify-fr-wasm vers 0.6.0
+release: v0.2.0
 ```
 
 ## Checklist avant chaque PR
@@ -79,8 +81,41 @@ npm test          # doit passer à 100 %
 npm run build     # doit se terminer sans erreur
 ```
 
-Vérifier également que `dist/index.html` ne contient aucun `<script>` inline
-exécutable (hors `type="application/ld+json"`).
+Vérifier que `dist/index.html` ne contient aucun `<script>` inline exécutable
+(hors `type="application/ld+json"`).
+
+## Versioning (semver)
+
+Le projet suit [Semantic Versioning](https://semver.org/lang/fr/) :
+
+| Incrément | Quand |
+|-----------|-------|
+| **patch** `0.1.x` | Correctif de bug, hotfix CSP, mise à jour de dépendance mineure |
+| **minor** `0.x.0` | Nouvelle fonctionnalité (mode, palette, amélioration WASM) |
+| **major** `x.0.0` | Refonte majeure ou changement incompatible |
+
+### Processus de release
+
+```bash
+# 1. Sur une branche release/
+git checkout -b release/v0.2.0 origin/main
+
+# 2. Bumper la version (modifie package.json + crée un commit)
+npm version minor --no-git-tag-version
+git add package.json package-lock.json
+git commit -m "release: v0.2.0"
+
+# 3. PR → merge squash sur main
+
+# 4. Après merge, tagger le commit squashé sur main
+git checkout main && git pull origin main
+git tag v0.2.0
+git push origin v0.2.0
+# → GitHub Actions crée automatiquement la Release avec les notes générées
+```
+
+> `--no-git-tag-version` empêche `npm version` de créer le tag localement —
+> on le crée manuellement après le merge pour qu'il pointe sur le squash commit.
 
 ## Mettre à jour le moteur WASM
 
@@ -89,13 +124,12 @@ version publiée sur npm :
 
 ```bash
 npm install @dyscolor/syllabify-fr-wasm@x.y.z
-# commiter uniquement package.json et package-lock.json
+# commiter uniquement package.json et package-lock.json via une PR
 ```
 
 ## Déploiement
 
-Le déploiement en production est **automatique** via GitHub Actions
-(`.github/workflows/deploy-prod.yml`) à chaque push sur `main`.
-SST invalide le cache CloudFront à la fin du deploy (~1-5 min de propagation).
+- **Continu** : chaque push sur `main` déclenche `deploy-prod.yml` → CloudFront (~1-5 min)
+- **Release** : chaque tag `v*.*.*` déclenche `release.yml` → GitHub Release avec notes auto
 
-Ne jamais lancer `npm run deploy` manuellement sauf en cas d'urgence.
+Ne jamais lancer `npm run deploy` manuellement sauf urgence absolue.
