@@ -95,6 +95,7 @@ export default $config({
                 "s3:GetBucketOwnershipControls", "s3:PutBucketOwnershipControls",
                 "s3:GetBucketTagging", "s3:PutBucketTagging",
                 "s3:GetBucketAcl", "s3:PutBucketAcl",
+                "s3:GetAccelerateConfiguration", "s3:PutAccelerateConfiguration",
                 "s3:GetEncryptionConfiguration", "s3:PutEncryptionConfiguration",
                 "s3:GetLifecycleConfiguration", "s3:PutLifecycleConfiguration",
                 "s3:ListBucket", "s3:ListBucketVersions",
