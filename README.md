@@ -18,9 +18,9 @@ Aide à la lecture pour les enfants dyslexiques. Colle un texte, il s'affiche av
 
 | Rôle | Outil |
 |---|---|
-| Framework | [Astro 5](https://astro.build) — site statique |
+| Framework | [Astro 6](https://astro.build) — site statique |
 | Styles | [Tailwind CSS v4](https://tailwindcss.com) |
-| Syllabation | [Hypher](https://github.com/bramstein/hypher) + [hyphenation.fr](https://github.com/nicowillis/hyphenation.fr) |
+| Syllabation | [`@dyscolor/syllabify-fr-wasm`](https://github.com/kevinlabory/syllabify-fr) — Rust/WASM, port de [LireCouleur 6](https://lirecouleur.arkaline.fr) |
 | Infra | [SST v4](https://sst.dev) → AWS S3 + CloudFront (eu-west-3) |
 | Police | [Luciole](https://www.luciole-vision.com) (CC-BY 4.0) |
 
@@ -31,26 +31,13 @@ npm install
 npm run dev       # http://localhost:4321
 npm run build     # build statique → dist/
 npm run preview   # prévisualiser le build
+npm test          # suite vitest
 ```
 
 ## Déploiement
 
-```bash
-npx sst install   # une fois — télécharge le runtime Pulumi
-npm run deploy    # → production (www.dyscolor.com)
-npm run deploy:dev  # → stage de test isolé
-```
-
-L'infrastructure est entièrement définie dans [`sst.config.ts`](./sst.config.ts) :
-zone Route 53, distribution CloudFront, certificat ACM, security headers.
-
-Après le premier `sst deploy`, copier les nameservers affichés dans l'output `nameservers` vers OVH (Domaines → dyscolor.com → Serveurs DNS).
-
-## Régénérer l'image OG
-
-```bash
-npm run gen:og    # → public/og-image.png (1200×630)
-```
+Le déploiement est **automatique** via GitHub Actions à chaque push sur `main`.
+SST invalide le cache CloudFront (~1-5 min de propagation).
 
 ## Structure
 
@@ -58,16 +45,22 @@ npm run gen:og    # → public/og-image.png (1200×630)
 src/
   layouts/    BaseLayout.astro (HTML, SEO, JSON-LD)
   components/ Header.astro · DyscolorApp.astro
-  lib/        colorize.ts · syllabify.ts · silent.ts · palettes.ts · types.ts
+  lib/        engine.ts · colorize.ts · syllabify.ts · silent.ts · palettes.ts · types.ts
   styles/     global.css
   pages/      index.astro
+packages/
+  syllabify-fr/   implémentation TypeScript pure (MCP server, tests)
 public/
   fonts/      Luciole-Regular.woff2 · Luciole-Bold.woff2
-  og-image.png · favicon.svg · manifest.webmanifest · robots.txt · llms.txt
+  sw-register.js · og-image.png · favicon.svg · manifest.webmanifest
 scripts/
   generate-og.mjs
 sst.config.ts
 ```
+
+## Contribuer
+
+Voir [CLAUDE.md](./CLAUDE.md) pour les conventions du projet (branches, commits, release).
 
 ## Licence
 

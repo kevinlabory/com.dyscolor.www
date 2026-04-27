@@ -14,7 +14,7 @@ const CSP = [
 ].join("; ");
 
 const GITHUB_REPO      = "kevinlabory/com.dyscolor.www";
-const ALERT_EMAIL      = "kevinlabory@gmail.com";
+const ALERT_EMAIL      = process.env.ALERT_EMAIL ?? '';
 const BUDGET_LIMIT_USD = "10"; // $10/mois — alerte à 80 %, blocage à 100 %
 
 export default $config({
