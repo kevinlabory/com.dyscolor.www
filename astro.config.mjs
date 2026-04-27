@@ -16,8 +16,5 @@ export default defineConfig({
         '@dyscolor/syllabify-fr': fileURLToPath(new URL('./src/lib/engine.ts', import.meta.url)),
       },
     },
-    optimizeDeps: {
-      include: ['hypher', 'hyphenation.fr'],
-    },
   },
 });
