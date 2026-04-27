@@ -47,6 +47,7 @@ jobs:
 
       - name: Refresh SST state
         run: npx sst refresh --stage production
+        continue-on-error: true
         env:
           ALERT_EMAIL: ${{ vars.ALERT_EMAIL }}
 
