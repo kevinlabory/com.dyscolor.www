@@ -48,8 +48,20 @@
       <button class="mode-btn" role="radio" aria-checked="false" data-mode="ligne">Ligne</button>
     </div>
 
+    <!-- Syllable colors toggle -->
+    <div class="flex items-center gap-1.5">
+      <button
+        class="silent-toggle-btn active"
+        data-syllable-colors-toggle
+        aria-pressed="true"
+        aria-label="Afficher les syllabes en couleur alternée"
+      >
+        Couleurs syllabes
+      </button>
+    </div>
+
     <!-- Palette buttons -->
-    <div class="flex items-center gap-1" role="radiogroup" aria-label="Palette de couleurs">
+    <div class="flex items-center gap-1" data-palette-group role="radiogroup" aria-label="Palette de couleurs">
       <span class="text-xs text-stone-400 mr-1 uppercase tracking-wide" aria-hidden="true">Couleurs</span>
       <button class="palette-btn active" role="radio" aria-checked="true"  data-palette="doux"      aria-label="Palette douce (bleu et orange)">
         <span class="swatch" style="background:#0e7490" aria-hidden="true"></span>
@@ -174,10 +186,22 @@
           </div>
         </section>
 
+        <!-- Syllable colors -->
+        <section class="bs-section">
+          <button
+            data-syllable-colors-toggle
+            class="silent-toggle-btn sheet-btn active"
+            aria-pressed="true"
+            aria-label="Afficher les syllabes en couleur alternée"
+          >
+            Couleurs syllabes
+          </button>
+        </section>
+
         <!-- Palette -->
         <section class="bs-section">
           <p class="bs-section-label">Couleurs</p>
-          <div class="bs-btn-group" role="radiogroup" aria-label="Palette de couleurs">
+          <div class="bs-btn-group" data-palette-group role="radiogroup" aria-label="Palette de couleurs">
             <button class="palette-btn active sheet-btn" role="radio" aria-checked="true"  data-palette="doux" aria-label="Palette douce">
               <span class="swatch" style="background:#0e7490" aria-hidden="true"></span>
               <span class="swatch" style="background:#92400e" aria-hidden="true"></span>
@@ -253,6 +277,7 @@
   } else {
     let currentMode: ColorizeMode = 'syllabe';
     let currentPalette: PaletteKey = 'doux';
+    let showSyllableColors = true;
     let showSilent = true;
     let showConfusable = false;
     let confusablePreset: ConfusablePreset = 'tout';
@@ -270,7 +295,8 @@
         outputPanel!.innerHTML = '<span class="italic text-stone-400 text-base">Le texte coloré apparaîtra ici…</span>';
         return;
       }
-      outputPanel!.innerHTML = colorizeText(text, currentMode, currentPalette, showSilent, showConfusable, confusablePreset);
+      const effectivePalette: PaletteKey = showSyllableColors ? currentPalette : 'mono';
+      outputPanel!.innerHTML = colorizeText(text, currentMode, effectivePalette, showSilent, showConfusable, confusablePreset);
     }
 
     // Update mobile status chips
@@ -316,6 +342,28 @@
     bsClose?.addEventListener('click', closeSheet);
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && !bottomSheet?.hasAttribute('hidden')) closeSheet();
+    });
+
+    // ── Syllable colors toggle (desktop + sheet) ─────────────────────────
+    function updatePaletteGroupState() {
+      document.querySelectorAll<HTMLElement>('[data-palette-group]').forEach(g => {
+        g.classList.toggle('opacity-40', !showSyllableColors);
+        g.querySelectorAll<HTMLButtonElement>('button').forEach(b => {
+          b.disabled = !showSyllableColors;
+        });
+      });
+    }
+
+    document.querySelectorAll<HTMLButtonElement>('[data-syllable-colors-toggle]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        showSyllableColors = !showSyllableColors;
+        document.querySelectorAll('[data-syllable-colors-toggle]').forEach(b => {
+          b.classList.toggle('active', showSyllableColors);
+          b.setAttribute('aria-pressed', String(showSyllableColors));
+        });
+        updatePaletteGroupState();
+        render();
+      });
     });
 
     // ── Silent toggle (desktop + sheet) ──────────────────────────────────
