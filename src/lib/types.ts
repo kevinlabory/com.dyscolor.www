@@ -16,13 +16,14 @@ export interface Token {
  * color === null  → passthrough: render without a color attribute
  * color !== null  → apply this hex color to the text
  *
- * silentIndices contains character positions *local to this piece* (0-based)
- * that should be rendered with SILENT_COLOR instead of `color`.
+ * silentIndices / confusableIndices contain character positions *local to this
+ * piece* (0-based). Silent takes priority over confusable in the renderer.
  */
 export interface AnalyzedPiece {
   text: string;
   color: string | null;
   silentIndices: number[];
+  confusableIndices: number[];
 }
 
 /**
@@ -45,5 +46,6 @@ export interface AnalyzedText {
   palette: PaletteKey;
   colors: [string, string];
   silentColor: string;
+  confusableColor: string;
   tokens: AnalyzedToken[];
 }

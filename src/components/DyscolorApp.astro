@@ -80,6 +80,23 @@
       </button>
     </div>
 
+    <!-- Confusable letters toggle + preset -->
+    <div class="flex items-center gap-1.5">
+      <button
+        class="confusable-toggle-btn"
+        data-confusable-toggle
+        aria-pressed="false"
+        aria-label="Mettre en évidence les lettres confusables"
+      >
+        <span style="color:#d97706" aria-hidden="true">b/d</span> Confusables
+      </button>
+      <div data-confusable-presets class="flex items-center gap-1 hidden" role="radiogroup" aria-label="Groupe de lettres confusables">
+        <button class="confusable-preset-btn active" role="radio" aria-checked="true"  data-confusable-preset="tout">Tout</button>
+        <button class="confusable-preset-btn"        role="radio" aria-checked="false" data-confusable-preset="bdpq">b/d/p/q</button>
+        <button class="confusable-preset-btn"        role="radio" aria-checked="false" data-confusable-preset="mnu">m/n/u</button>
+      </div>
+    </div>
+
     <!-- Actions -->
     <div class="flex items-center gap-2 ml-auto">
       <button data-copy class="action-btn" aria-label="Copier le texte coloré dans le presse-papier">
@@ -192,6 +209,24 @@
           </button>
         </section>
 
+        <!-- Confusable letters -->
+        <section class="bs-section">
+          <button
+            data-confusable-toggle
+            class="confusable-toggle-btn sheet-btn"
+            aria-pressed="false"
+            aria-label="Mettre en évidence les lettres confusables"
+          >
+            <span style="color:#d97706" aria-hidden="true">b/d</span>
+            Confusables
+          </button>
+          <div data-confusable-presets class="bs-btn-group hidden" role="radiogroup" aria-label="Groupe de lettres confusables">
+            <button class="confusable-preset-btn sheet-btn active" role="radio" aria-checked="true"  data-confusable-preset="tout">Tout</button>
+            <button class="confusable-preset-btn sheet-btn"        role="radio" aria-checked="false" data-confusable-preset="bdpq">b/d/p/q</button>
+            <button class="confusable-preset-btn sheet-btn"        role="radio" aria-checked="false" data-confusable-preset="mnu">m/n/u</button>
+          </div>
+        </section>
+
         <!-- Print -->
         <section class="bs-section">
           <button data-print class="action-btn sheet-btn" aria-label="Imprimer le texte coloré">
@@ -207,6 +242,7 @@
 
 <script>
   import { colorizeText } from '../lib/colorize';
+  import type { ConfusablePreset } from '../lib/engine';
   import type { ColorizeMode, PaletteKey } from '../lib/types';
 
   const textarea    = document.getElementById('input-textarea') as HTMLTextAreaElement | null;
@@ -218,6 +254,8 @@
     let currentMode: ColorizeMode = 'syllabe';
     let currentPalette: PaletteKey = 'doux';
     let showSilent = true;
+    let showConfusable = false;
+    let confusablePreset: ConfusablePreset = 'tout';
     let debounceTimer: ReturnType<typeof setTimeout>;
 
     // Texte de démo : montre immédiatement ce que fait l'outil
@@ -232,7 +270,7 @@
         outputPanel!.innerHTML = '<span class="italic text-stone-400 text-base">Le texte coloré apparaîtra ici…</span>';
         return;
       }
-      outputPanel!.innerHTML = colorizeText(text, currentMode, currentPalette, showSilent);
+      outputPanel!.innerHTML = colorizeText(text, currentMode, currentPalette, showSilent, showConfusable, confusablePreset);
     }
 
     // Update mobile status chips
@@ -288,6 +326,35 @@
           b.classList.toggle('active', showSilent);
           b.setAttribute('aria-pressed', String(showSilent));
         });
+        render();
+      });
+    });
+
+    // ── Confusable toggle (desktop + sheet) ──────────────────────────────
+    document.querySelectorAll<HTMLButtonElement>('[data-confusable-toggle]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        showConfusable = !showConfusable;
+        document.querySelectorAll('[data-confusable-toggle]').forEach(b => {
+          b.classList.toggle('active', showConfusable);
+          b.setAttribute('aria-pressed', String(showConfusable));
+        });
+        document.querySelectorAll<HTMLElement>('[data-confusable-presets]').forEach(el => {
+          el.classList.toggle('hidden', !showConfusable);
+        });
+        render();
+      });
+    });
+
+    // ── Confusable preset buttons (desktop + sheet) ───────────────────────
+    document.querySelectorAll<HTMLButtonElement>('[data-confusable-preset]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('[data-confusable-preset]').forEach(b => {
+          b.classList.remove('active');
+          b.setAttribute('aria-checked', 'false');
+        });
+        btn.classList.add('active');
+        btn.setAttribute('aria-checked', 'true');
+        confusablePreset = btn.dataset.confusablePreset as ConfusablePreset;
         render();
       });
     });

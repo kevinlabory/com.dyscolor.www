@@ -1,6 +1,8 @@
 import { syllabify } from './syllabify';
 import { PALETTES } from './palettes';
 import { getSilentIndices, SILENT_COLOR } from './silent';
+import { getConfusableIndices, CONFUSABLE_COLOR } from './engine';
+import type { ConfusablePreset } from './engine';
 import type { ColorizeMode, PaletteKey, Token, AnalyzedPiece, AnalyzedToken, AnalyzedText } from './types';
 
 // ---------------------------------------------------------------------------
@@ -46,6 +48,8 @@ function analyzeBySyllabe(
   tokens: Token[],
   colors: [string, string],
   showSilent: boolean,
+  showConfusable: boolean,
+  confusablePreset: ConfusablePreset,
 ): AnalyzedToken[] {
   let counter = 0;
   const result: AnalyzedToken[] = [];
@@ -64,16 +68,17 @@ function analyzeBySyllabe(
 
       if (!core || /^\d+$/.test(core)) {
         // Number or empty core — single color block
-        pieces.push({ text: prefix + core + suffix, color: colors[counter % 2]!, silentIndices: [] });
+        pieces.push({ text: prefix + core + suffix, color: colors[counter % 2]!, silentIndices: [], confusableIndices: [] });
         counter++;
         continue;
       }
 
       if (prefix) {
-        pieces.push({ text: prefix, color: null, silentIndices: [] });
+        pieces.push({ text: prefix, color: null, silentIndices: [], confusableIndices: [] });
       }
 
       const silentIdx = showSilent ? getSilentIndices(core) : new Set<number>();
+      const confusableIdx = showConfusable ? getConfusableIndices(core, confusablePreset) : new Set<number>();
       const syllables = syllabify(core);
       let offset = 0;
 
@@ -81,19 +86,23 @@ function analyzeBySyllabe(
         const syl = syllables[i]!;
         const isLast = i === syllables.length - 1;
         const pieceText = isLast ? syl + suffix : syl;
-        // Convert global-to-core silent indices to local-to-piece indices
         const localSilent = showSilent
           ? [...silentIdx]
               .filter(si => si >= offset && si < offset + syl.length)
               .map(si => si - offset)
           : [];
-        pieces.push({ text: pieceText, color: colors[counter % 2]!, silentIndices: localSilent });
+        const localConfusable = showConfusable
+          ? [...confusableIdx]
+              .filter(ci => ci >= offset && ci < offset + syl.length)
+              .map(ci => ci - offset)
+          : [];
+        pieces.push({ text: pieceText, color: colors[counter % 2]!, silentIndices: localSilent, confusableIndices: localConfusable });
         offset += syl.length;
         counter++;
       }
 
       if (!syllables.length) {
-        pieces.push({ text: suffix, color: null, silentIndices: [] });
+        pieces.push({ text: suffix, color: null, silentIndices: [], confusableIndices: [] });
       }
     }
 
@@ -111,6 +120,8 @@ function analyzeByMot(
   tokens: Token[],
   colors: [string, string],
   showSilent: boolean,
+  showConfusable: boolean,
+  confusablePreset: ConfusablePreset,
 ): AnalyzedToken[] {
   let counter = 0;
   const result: AnalyzedToken[] = [];
@@ -125,15 +136,16 @@ function analyzeByMot(
     const color = colors[counter % 2]!;
     const pieces: AnalyzedPiece[] = [];
 
-    if (!core || !showSilent) {
-      pieces.push({ text: token.value, color, silentIndices: [] });
+    const needsSplit = (showSilent || showConfusable) && core;
+    if (!needsSplit) {
+      pieces.push({ text: token.value, color, silentIndices: [], confusableIndices: [] });
     } else {
       if (prefix) {
-        pieces.push({ text: prefix, color: null, silentIndices: [] });
+        pieces.push({ text: prefix, color: null, silentIndices: [], confusableIndices: [] });
       }
-      // silentIdx is already 0-based within core; piece starts at core (offset 0)
-      const localSilent = [...getSilentIndices(core)];
-      pieces.push({ text: core + suffix, color, silentIndices: localSilent });
+      const localSilent = showSilent ? [...getSilentIndices(core)] : [];
+      const localConfusable = showConfusable ? [...getConfusableIndices(core, confusablePreset)] : [];
+      pieces.push({ text: core + suffix, color, silentIndices: localSilent, confusableIndices: localConfusable });
     }
     counter++;
 
@@ -151,7 +163,7 @@ function analyzeByLigne(text: string, colors: [string, string]): AnalyzedToken[]
   return text.split('\n').map((line, i) => ({
     type: 'line' as const,
     raw: line,
-    pieces: [{ text: line, color: colors[i % 2]!, silentIndices: [] }],
+    pieces: [{ text: line, color: colors[i % 2]!, silentIndices: [], confusableIndices: [] }],
   }));
 }
 
@@ -164,11 +176,13 @@ export function analyze(
   mode: ColorizeMode,
   palette: PaletteKey,
   showSilent = false,
+  showConfusable = false,
+  confusablePreset: ConfusablePreset = 'tout',
 ): AnalyzedText {
   const colors = PALETTES[palette];
 
   if (mode === 'ligne') {
-    return { mode, palette, colors, silentColor: SILENT_COLOR, tokens: analyzeByLigne(input, colors) };
+    return { mode, palette, colors, silentColor: SILENT_COLOR, confusableColor: CONFUSABLE_COLOR, tokens: analyzeByLigne(input, colors) };
   }
 
   const tokens = tokenize(input);
@@ -178,8 +192,9 @@ export function analyze(
     palette,
     colors,
     silentColor: SILENT_COLOR,
+    confusableColor: CONFUSABLE_COLOR,
     tokens: mode === 'syllabe'
-      ? analyzeBySyllabe(tokens, colors, showSilent)
-      : analyzeByMot(tokens, colors, showSilent),
+      ? analyzeBySyllabe(tokens, colors, showSilent, showConfusable, confusablePreset)
+      : analyzeByMot(tokens, colors, showSilent, showConfusable, confusablePreset),
   };
 }
