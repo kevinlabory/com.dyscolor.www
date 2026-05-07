@@ -1,4 +1,5 @@
 import { analyze } from './analyze';
+import type { ConfusablePreset } from './engine';
 import type { ColorizeMode, PaletteKey, AnalyzedText, AnalyzedPiece } from './types';
 
 // ---------------------------------------------------------------------------
@@ -14,27 +15,31 @@ function escape(text: string): string {
  * - color === null → passthrough <span> with no style
  * - silentIndices non-empty → split into runs of main color vs silent color
  */
-function renderPiece(piece: AnalyzedPiece, silentColor: string): string {
-  const { text, color, silentIndices } = piece;
+function renderPiece(piece: AnalyzedPiece, silentColor: string, confusableColor: string): string {
+  const { text, color, silentIndices, confusableIndices } = piece;
 
   if (color === null) {
     return `<span>${escape(text)}</span>`;
   }
 
-  if (silentIndices.length === 0) {
+  if (silentIndices.length === 0 && confusableIndices.length === 0) {
     return `<span style="color:${color}">${escape(text)}</span>`;
   }
 
   // Merge adjacent characters that share the same color into one span.
+  // Priority: silent > confusable > syllable color.
   const silentSet = new Set(silentIndices);
+  const confusableSet = new Set(confusableIndices);
+  const charColor = (i: number) =>
+    silentSet.has(i) ? silentColor : confusableSet.has(i) ? confusableColor : color;
+
   let result = '';
   let i = 0;
   while (i < text.length) {
-    const runColor = silentSet.has(i) ? silentColor : color;
+    const runColor = charColor(i);
     let run = text[i]!;
     let j = i + 1;
-    while (j < text.length) {
-      if ((silentSet.has(j) ? silentColor : color) !== runColor) break;
+    while (j < text.length && charColor(j) === runColor) {
       run += text[j]!;
       j++;
     }
@@ -45,7 +50,7 @@ function renderPiece(piece: AnalyzedPiece, silentColor: string): string {
 }
 
 function renderHTML(analyzed: AnalyzedText): string {
-  const { tokens, silentColor } = analyzed;
+  const { tokens, silentColor, confusableColor } = analyzed;
   const parts: string[] = [];
 
   for (const token of tokens) {
@@ -71,7 +76,7 @@ function renderHTML(analyzed: AnalyzedText): string {
 
     // word token — render each piece
     for (const piece of token.pieces) {
-      parts.push(renderPiece(piece, silentColor));
+      parts.push(renderPiece(piece, silentColor, confusableColor));
     }
   }
 
@@ -87,7 +92,9 @@ export function colorizeText(
   mode: ColorizeMode,
   palette: PaletteKey,
   showSilent = false,
+  showConfusable = false,
+  confusablePreset: ConfusablePreset = 'tout',
 ): string {
   if (!input.trim()) return '';
-  return renderHTML(analyze(input, mode, palette, showSilent));
+  return renderHTML(analyze(input, mode, palette, showSilent, showConfusable, confusablePreset));
 }

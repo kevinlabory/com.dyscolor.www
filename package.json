@@ -23,7 +23,7 @@
   "dependencies": {
     "@astrojs/sitemap": "^3.7.2",
     "@dyscolor/syllabify-fr": "*",
-    "@dyscolor/syllabify-fr-wasm": "^0.7.0"
+    "@dyscolor/syllabify-fr-wasm": "^0.8.2"
   },
   "devDependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",

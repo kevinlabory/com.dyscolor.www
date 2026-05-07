@@ -109,6 +109,52 @@ body {
   color: #1c1917;
 }
 
+.confusable-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: 1.5px solid #d6d3d1;
+  background: transparent;
+  color: #57534e;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.confusable-toggle-btn:hover {
+  border-color: #d97706;
+  color: #57534e;
+}
+.confusable-toggle-btn.active {
+  background: #fffbeb;
+  border-color: #d97706;
+  color: #1c1917;
+}
+
+.confusable-preset-btn {
+  padding: 0.3rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: 1.5px solid #d6d3d1;
+  background: transparent;
+  color: #57534e;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.confusable-preset-btn:hover {
+  border-color: #d97706;
+  color: #d97706;
+}
+.confusable-preset-btn.active,
+.confusable-preset-btn[aria-checked="true"] {
+  background: #d97706;
+  border-color: #d97706;
+  color: #fff;
+}
+
 .action-btn {
   padding: 0.35rem 1rem;
   border-radius: 9999px;
