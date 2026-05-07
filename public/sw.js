@@ -1,4 +1,4 @@
-const CACHE = 'dyscolor-v1';
+const CACHE = 'dyscolor-v2';
 
 self.addEventListener('install', (e) => {
   e.waitUntil(
@@ -17,6 +17,13 @@ self.addEventListener('activate', (e) => {
 });
 
 self.addEventListener('fetch', (e) => {
+  // Network-first pour les navigations : index.html est toujours récupéré
+  // depuis le réseau pour éviter de servir d'anciens chemins CSS hashés.
+  if (e.request.mode === 'navigate') {
+    e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
+    return;
+  }
+  // Cache-first pour les assets statiques (fonts, images, manifest…)
   e.respondWith(
     caches.match(e.request).then((cached) => cached ?? fetch(e.request))
   );
