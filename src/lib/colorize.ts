@@ -1,5 +1,5 @@
 import { analyze } from './analyze';
-import type { ConfusablePreset } from './engine';
+import type { ConfusablePreset } from './confusable';
 import type { ColorizeMode, PaletteKey, AnalyzedText, AnalyzedPiece } from './types';
 
 // ---------------------------------------------------------------------------
