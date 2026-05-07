@@ -1,8 +1,8 @@
 import { syllabify } from './syllabify';
 import { PALETTES } from './palettes';
 import { getSilentIndices, SILENT_COLOR } from './silent';
-import { getConfusableIndices, CONFUSABLE_COLOR } from './engine';
-import type { ConfusablePreset } from './engine';
+import { getConfusableIndices, CONFUSABLE_COLOR } from './confusable';
+import type { ConfusablePreset } from './confusable';
 import type { ColorizeMode, PaletteKey, Token, AnalyzedPiece, AnalyzedToken, AnalyzedText } from './types';
 
 // ---------------------------------------------------------------------------
