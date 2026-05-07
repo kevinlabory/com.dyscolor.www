@@ -1,4 +1,4 @@
-const CACHE = 'dyscolor-v2';
+const CACHE = 'dyscolor-v3';
 
 self.addEventListener('install', (e) => {
   e.waitUntil(
@@ -9,11 +9,15 @@ self.addEventListener('install', (e) => {
 
 self.addEventListener('activate', (e) => {
   e.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))
-    )
+    caches.keys()
+      .then((keys) =>
+        Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))
+      )
+      .then(() => self.clients.claim())
+      .then(() => self.clients.matchAll({ type: 'window' }))
+      // Force a reload so pages that were served by the old SW get fresh HTML.
+      .then((clients) => clients.forEach((c) => c.navigate(c.url)))
   );
-  self.clients.claim();
 });
 
 self.addEventListener('fetch', (e) => {
