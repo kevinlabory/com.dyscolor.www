@@ -48,18 +48,6 @@
       <button class="mode-btn" role="radio" aria-checked="false" data-mode="ligne">Ligne</button>
     </div>
 
-    <!-- Syllable colors toggle -->
-    <div class="flex items-center gap-1.5">
-      <button
-        class="silent-toggle-btn active"
-        data-syllable-colors-toggle
-        aria-pressed="true"
-        aria-label="Afficher les syllabes en couleur alternée"
-      >
-        Couleurs syllabes
-      </button>
-    </div>
-
     <!-- Palette buttons -->
     <div class="flex items-center gap-1" data-palette-group role="radiogroup" aria-label="Palette de couleurs">
       <span class="text-xs text-stone-400 mr-1 uppercase tracking-wide" aria-hidden="true">Couleurs</span>
@@ -186,18 +174,6 @@
           </div>
         </section>
 
-        <!-- Syllable colors -->
-        <section class="bs-section">
-          <button
-            data-syllable-colors-toggle
-            class="silent-toggle-btn sheet-btn active"
-            aria-pressed="true"
-            aria-label="Afficher les syllabes en couleur alternée"
-          >
-            Couleurs syllabes
-          </button>
-        </section>
-
         <!-- Palette -->
         <section class="bs-section">
           <p class="bs-section-label">Couleurs</p>
@@ -277,7 +253,6 @@
   } else {
     let currentMode: ColorizeMode = 'syllabe';
     let currentPalette: PaletteKey = 'doux';
-    let showSyllableColors = true;
     let showSilent = true;
     let showConfusable = false;
     let confusablePreset: ConfusablePreset = 'tout';
@@ -295,7 +270,7 @@
         outputPanel!.innerHTML = '<span class="italic text-stone-400 text-base">Le texte coloré apparaîtra ici…</span>';
         return;
       }
-      const effectivePalette: PaletteKey = showSyllableColors ? currentPalette : 'mono';
+      const effectivePalette: PaletteKey = showConfusable ? 'mono' : currentPalette;
       outputPanel!.innerHTML = colorizeText(text, currentMode, effectivePalette, showSilent, showConfusable, confusablePreset);
     }
 
@@ -349,28 +324,6 @@
       if (e.key === 'Escape' && !bottomSheet?.hasAttribute('hidden')) closeSheet();
     });
 
-    // ── Syllable colors toggle (desktop + sheet) ─────────────────────────
-    function updatePaletteGroupState() {
-      document.querySelectorAll<HTMLElement>('[data-palette-group]').forEach(g => {
-        g.classList.toggle('opacity-40', !showSyllableColors);
-        g.querySelectorAll<HTMLButtonElement>('button').forEach(b => {
-          b.disabled = !showSyllableColors;
-        });
-      });
-    }
-
-    document.querySelectorAll<HTMLButtonElement>('[data-syllable-colors-toggle]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        showSyllableColors = !showSyllableColors;
-        document.querySelectorAll('[data-syllable-colors-toggle]').forEach(b => {
-          b.classList.toggle('active', showSyllableColors);
-          b.setAttribute('aria-pressed', String(showSyllableColors));
-        });
-        updatePaletteGroupState();
-        render();
-      });
-    });
-
     // ── Silent toggle (desktop + sheet) ──────────────────────────────────
     document.querySelectorAll<HTMLButtonElement>('[data-silent-toggle]').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -384,6 +337,15 @@
     });
 
     // ── Confusable toggle (desktop + sheet) ──────────────────────────────
+    function updatePaletteGroupState() {
+      document.querySelectorAll<HTMLElement>('[data-palette-group]').forEach(g => {
+        g.classList.toggle('opacity-40', showConfusable);
+        g.querySelectorAll<HTMLButtonElement>('button').forEach(b => {
+          b.disabled = showConfusable;
+        });
+      });
+    }
+
     document.querySelectorAll<HTMLButtonElement>('[data-confusable-toggle]').forEach(btn => {
       btn.addEventListener('click', () => {
         showConfusable = !showConfusable;
@@ -394,6 +356,7 @@
         document.querySelectorAll<HTMLElement>('[data-confusable-presets]').forEach(el => {
           el.classList.toggle('hidden', !showConfusable);
         });
+        updatePaletteGroupState();
         render();
       });
     });
