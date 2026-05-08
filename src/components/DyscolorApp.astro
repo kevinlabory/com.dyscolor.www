@@ -309,6 +309,11 @@
       if (paletteChip) paletteChip.textContent = paletteLabels[currentPalette] ?? currentPalette;
     }
 
+    // Reload when a new service worker activates to get fresh HTML + assets.
+    navigator.serviceWorker?.addEventListener('message', (e) => {
+      if (e.data?.type === 'SW_UPDATED') location.reload();
+    });
+
     // ── Bottom sheet ──────────────────────────────────────────────────────
     const bottomSheet = document.getElementById('bottom-sheet');
     const bsPanel     = document.getElementById('bs-panel');
