@@ -1,11 +1,8 @@
-const CACHE = 'dyscolor-v3';
+const CACHE = 'dyscolor-v4';
 
-self.addEventListener('install', (e) => {
-  e.waitUntil(
-    caches.open(CACHE).then((c) => c.addAll(['/', '/manifest.webmanifest', '/favicon.svg']))
-  );
-  self.skipWaiting();
-});
+// No pre-caching in install: addAll() would abort the entire install if any
+// resource returns a non-2xx, leaving the old SW active indefinitely.
+self.addEventListener('install', () => self.skipWaiting());
 
 self.addEventListener('activate', (e) => {
   e.waitUntil(
@@ -15,20 +12,23 @@ self.addEventListener('activate', (e) => {
       )
       .then(() => self.clients.claim())
       .then(() => self.clients.matchAll({ type: 'window' }))
-      // Force a reload so pages that were served by the old SW get fresh HTML.
-      .then((clients) => clients.forEach((c) => c.navigate(c.url)))
+      // postMessage is more reliable than client.navigate() across browsers.
+      .then((clients) => clients.forEach((c) => c.postMessage({ type: 'SW_UPDATED' })))
   );
 });
 
 self.addEventListener('fetch', (e) => {
-  // Network-first pour les navigations : index.html est toujours récupéré
-  // depuis le réseau pour éviter de servir d'anciens chemins CSS hashés.
+  // Network-first for navigation: always fetch fresh index.html so hashed
+  // asset paths are never stale after a new deploy.
   if (e.request.mode === 'navigate') {
     e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
     return;
   }
-  // Cache-first pour les assets statiques (fonts, images, manifest…)
+  // Cache-first for static assets (fonts, images, wasm, manifest…)
   e.respondWith(
-    caches.match(e.request).then((cached) => cached ?? fetch(e.request))
+    caches.match(e.request).then((cached) => cached ?? fetch(e.request).then((res) => {
+      if (res.ok) caches.open(CACHE).then((c) => c.put(e.request, res.clone()));
+      return res;
+    }))
   );
 });
