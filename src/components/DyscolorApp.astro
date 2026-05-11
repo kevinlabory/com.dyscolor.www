@@ -41,7 +41,7 @@
   >
 
     <!-- Mode buttons -->
-    <div class="flex items-center gap-1" role="radiogroup" aria-label="Mode de colorisation">
+    <div class="flex items-center gap-1" data-mode-group role="radiogroup" aria-label="Mode de colorisation">
       <span class="text-xs text-stone-400 mr-1 uppercase tracking-wide" aria-hidden="true">Mode</span>
       <button class="mode-btn" role="radio" aria-checked="true"  data-mode="syllabe">Syllabe</button>
       <button class="mode-btn" role="radio" aria-checked="false" data-mode="mot">Mot</button>
@@ -167,7 +167,7 @@
         <!-- Mode -->
         <section class="bs-section">
           <p class="bs-section-label">Mode</p>
-          <div class="bs-btn-group" role="radiogroup" aria-label="Mode de colorisation">
+          <div class="bs-btn-group" data-mode-group role="radiogroup" aria-label="Mode de colorisation">
             <button class="mode-btn sheet-btn" role="radio" aria-checked="true"  data-mode="syllabe">Syllabe</button>
             <button class="mode-btn sheet-btn" role="radio" aria-checked="false" data-mode="mot">Mot</button>
             <button class="mode-btn sheet-btn" role="radio" aria-checked="false" data-mode="ligne">Ligne</button>
@@ -337,11 +337,13 @@
     });
 
     // ── Confusable toggle (desktop + sheet) ──────────────────────────────
-    function updatePaletteGroupState() {
-      document.querySelectorAll<HTMLElement>('[data-palette-group]').forEach(g => {
-        g.classList.toggle('opacity-40', showConfusable);
-        g.querySelectorAll<HTMLButtonElement>('button').forEach(b => {
-          b.disabled = showConfusable;
+    function updateMirorsRelatedState() {
+      ['[data-palette-group]', '[data-mode-group]'].forEach(sel => {
+        document.querySelectorAll<HTMLElement>(sel).forEach(g => {
+          g.classList.toggle('opacity-40', showConfusable);
+          g.querySelectorAll<HTMLButtonElement>('button').forEach(b => {
+            b.disabled = showConfusable;
+          });
         });
       });
     }
@@ -356,7 +358,7 @@
         document.querySelectorAll<HTMLElement>('[data-confusable-presets]').forEach(el => {
           el.classList.toggle('hidden', !showConfusable);
         });
-        updatePaletteGroupState();
+        updateMirorsRelatedState();
         render();
       });
     });
