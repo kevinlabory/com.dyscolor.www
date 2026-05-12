@@ -164,6 +164,12 @@
           </button>
         </div>
 
+        <!-- Aperçu temps réel -->
+        <section class="bs-section bs-preview">
+          <p class="bs-section-label">Aperçu</p>
+          <div id="bs-preview-content" class="bs-preview-content"></div>
+        </section>
+
         <!-- Mode -->
         <section class="bs-section">
           <p class="bs-section-label">Mode</p>
@@ -266,12 +272,16 @@
 
     function render() {
       const text = textarea!.value;
+      const previewEl = document.getElementById('bs-preview-content');
+      let html: string;
       if (!text.trim()) {
-        outputPanel!.innerHTML = '<span class="italic text-stone-400 text-base">Le texte coloré apparaîtra ici…</span>';
-        return;
+        html = '<span class="italic text-stone-400 text-base">Le texte coloré apparaîtra ici…</span>';
+      } else {
+        const effectivePalette: PaletteKey = showConfusable ? 'mono' : currentPalette;
+        html = colorizeText(text, currentMode, effectivePalette, showSilent, showConfusable, confusablePreset);
       }
-      const effectivePalette: PaletteKey = showConfusable ? 'mono' : currentPalette;
-      outputPanel!.innerHTML = colorizeText(text, currentMode, effectivePalette, showSilent, showConfusable, confusablePreset);
+      outputPanel!.innerHTML = html;
+      if (previewEl) previewEl.innerHTML = html;
     }
 
     // Update mobile status chips
