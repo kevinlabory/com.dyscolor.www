@@ -314,6 +314,18 @@ body {
   padding-bottom: 0.65rem;
 }
 
+/* ── Bottom sheet preview ── */
+.bs-preview-content {
+  background: var(--color-page);
+  border-radius: 0.75rem;
+  padding: 0.85rem 1rem;
+  font-size: 1.05rem;
+  line-height: 1.7;
+  max-height: 6.5rem;
+  overflow-y: auto;
+  white-space: pre-wrap;
+}
+
 /* ── Print ── */
 @media print {
   #input-panel,
