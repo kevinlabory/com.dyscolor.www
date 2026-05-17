@@ -264,11 +264,18 @@
     let confusablePreset: ConfusablePreset = 'tout';
     let debounceTimer: ReturnType<typeof setTimeout>;
 
-    // Texte de démo : montre immédiatement ce que fait l'outil
+    // Texte de démo : montre immédiatement ce que fait l'outil,
+    // effacé au premier focus pour que l'utilisateur puisse taper directement.
     const DEMO = `La maîtresse lit une histoire à voix haute. Les élèves écoutent en silence dans la salle de classe. Ensemble, ils apprennent à reconnaître les sons difficiles.`;
     if (!textarea.value.trim()) {
       textarea.value = DEMO;
     }
+    textarea.addEventListener('focus', () => {
+      if (textarea.value === DEMO) {
+        textarea.value = '';
+        render();
+      }
+    }, { once: true });
 
     function render() {
       const text = textarea!.value;
