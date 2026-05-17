@@ -9,6 +9,11 @@ import type { ColorizeMode, PaletteKey, Token, AnalyzedPiece, AnalyzedToken, Ana
 // Tokenizer
 // ---------------------------------------------------------------------------
 
+// Normalize typographic apostrophes to ASCII (common when copy-pasting from websites)
+function normalize(text: string): string {
+  return text.replace(/[‘’‚‛ʼʻ]/g, "'");
+}
+
 function tokenize(text: string): Token[] {
   const tokens: Token[] = [];
   const re = /\n|[^\S\n]+|[^\s]+/g;
@@ -36,8 +41,9 @@ function splitPunctuation(word: string): [string, string, string] {
   return [m[1] ?? '', m[2] ?? '', m[3] ?? ''];
 }
 
-function mergeApostropheParts(word: string): string[] {
-  return word.split(/(?<=[a-zA-ZÀ-ÿ]')(?=[a-zA-ZÀ-ÿ])/u);
+// Split at apostrophes and hyphens between letters (elision + compound words)
+function splitAtConnectors(word: string): string[] {
+  return word.split(/(?<=[a-zA-ZÀ-ÿ][-'])(?=[a-zA-ZÀ-ÿ])/u);
 }
 
 // ---------------------------------------------------------------------------
@@ -60,7 +66,7 @@ function analyzeBySyllabe(
       continue;
     }
 
-    const wordParts = mergeApostropheParts(token.value);
+    const wordParts = splitAtConnectors(token.value);
     const pieces: AnalyzedPiece[] = [];
 
     for (const wp of wordParts) {
@@ -181,11 +187,13 @@ export function analyze(
 ): AnalyzedText {
   const colors = PALETTES[palette];
 
+  const text = normalize(input);
+
   if (mode === 'ligne') {
-    return { mode, palette, colors, silentColor: SILENT_COLOR, confusableColor: CONFUSABLE_COLOR, tokens: analyzeByLigne(input, colors) };
+    return { mode, palette, colors, silentColor: SILENT_COLOR, confusableColor: CONFUSABLE_COLOR, tokens: analyzeByLigne(text, colors) };
   }
 
-  const tokens = tokenize(input);
+  const tokens = tokenize(text);
 
   return {
     mode,
