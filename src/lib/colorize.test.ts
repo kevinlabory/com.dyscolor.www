@@ -172,6 +172,27 @@ describe('colorizeText — characterization (palette: doux)', () => {
     );
   });
 
+  // ── Typographic apostrophe (copy-paste from web) ──────────────────────
+  // U+2019 RIGHT SINGLE QUOTATION MARK should be normalized to ASCII apostrophe
+  // and produce the same output as a straight apostrophe.
+
+  it('mode syllabe — typographic apostrophe U+2019 treated like ASCII apostrophe', () => {
+    const withTypographic = colorizeText('J’entends', 'syllabe', 'doux');
+    const withAscii       = colorizeText("J'entends",     'syllabe', 'doux');
+    expect(withTypographic).toBe(withAscii);
+  });
+
+  it('mode syllabe — hyphenated word "peut-être" preserves hyphen in output', () => {
+    const result = colorizeText('peut-être', 'syllabe', 'doux');
+    expect(result).toContain('-');
+    expect(result).not.toContain('peutêtre');
+  });
+
+  it('mode syllabe — "Est-ce" preserves hyphen in output', () => {
+    const result = colorizeText('Est-ce', 'syllabe', 'doux');
+    expect(result).toContain('-');
+  });
+
   // ── Multiple spaces (passthrough preservation) ─────────────────────────────
 
   it('mode syllabe — multiple spaces preserved as passthrough span', () => {
