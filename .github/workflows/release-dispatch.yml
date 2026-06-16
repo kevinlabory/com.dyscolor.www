@@ -14,11 +14,15 @@ on:
           - major
 
 jobs:
-  release:
-    name: Bump, tag et release
+  # ── Job 1 : branche release → PR → merge squash ─────────────────────────
+  bump:
+    name: Bump version via PR
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      pull-requests: write
+    outputs:
+      tag: ${{ steps.version.outputs.tag }}
 
     steps:
       - uses: actions/checkout@v4
@@ -45,13 +49,86 @@ jobs:
           npm version ${{ inputs.bump }} --no-git-tag-version
           echo "tag=v$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
 
-      - name: Commit et push
+      - name: Créer la branche release et commiter
         run: |
+          git checkout -b release/${{ steps.version.outputs.tag }}
           git add package.json package-lock.json
           git commit -m "release: ${{ steps.version.outputs.tag }}"
-          git push origin main
+          git push origin release/${{ steps.version.outputs.tag }}
+
+      - name: Créer et merger la PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PR_URL=$(gh pr create \
+            --title "release: ${{ steps.version.outputs.tag }}" \
+            --body "Bump automatique déclenché depuis Actions (${{ inputs.bump }})." \
+            --base main \
+            --head release/${{ steps.version.outputs.tag }})
+          gh pr merge "$PR_URL" --squash --delete-branch
+
+  # ── Job 2 : deploy + tag + GitHub Release ───────────────────────────────
+  # Note : GITHUB_TOKEN ne déclenche pas d'autres workflows — tout est ici.
+  deploy:
+    name: Deploy, tag et release
+    needs: bump
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      id-token: write
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Cache SST runtime
+        uses: actions/cache@v4
+        with:
+          path: .sst/platform
+          key: sst-platform-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          restore-keys: sst-platform-${{ runner.os }}-
+
+      - name: Install SST runtime
+        run: npx sst install
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: eu-west-3
+
+      - name: Refresh SST state
+        run: npx sst refresh --stage production
+        continue-on-error: true
+        env:
+          ALERT_EMAIL: ${{ vars.ALERT_EMAIL }}
+
+      - name: Deploy
+        run: npx sst deploy --stage production
+        env:
+          ALERT_EMAIL: ${{ vars.ALERT_EMAIL }}
 
       - name: Créer et pousser le tag
         run: |
-          git tag ${{ steps.version.outputs.tag }}
-          git push origin ${{ steps.version.outputs.tag }}
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag ${{ needs.bump.outputs.tag }}
+          git push origin ${{ needs.bump.outputs.tag }}
+
+      - name: Créer la GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${{ needs.bump.outputs.tag }}" \
+            --title "${{ needs.bump.outputs.tag }}" \
+            --generate-notes
