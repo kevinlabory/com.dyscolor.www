@@ -1,0 +1,43 @@
+version: 2
+updates:
+  # ── Dépendances npm ─────────────────────────────────────────────────────
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Europe/Paris
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: chore
+      include: scope
+    groups:
+      # Regroupe les patches et minors dans une seule PR par semaine
+      minor-and-patch:
+        update-types:
+          - minor
+          - patch
+    ignore:
+      # Garde la même version de WASM que celle utilisée en CI/prod —
+      # les bumps de moteur de syllabification doivent rester manuels
+      # (validation pédagogique + test sur cas réels avant déploiement).
+      - dependency-name: "@dyscolor/syllabify-fr-wasm"
+
+  # ── GitHub Actions (checkout, setup-node, configure-aws-credentials…) ──
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Europe/Paris
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: chore(ci)
+      include: scope
+    groups:
+      actions:
+        update-types:
+          - minor
+          - patch
