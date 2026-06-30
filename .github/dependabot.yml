@@ -23,6 +23,11 @@ updates:
       # les bumps de moteur de syllabification doivent rester manuels
       # (validation pédagogique + test sur cas réels avant déploiement).
       - dependency-name: "@dyscolor/syllabify-fr-wasm"
+      # Astro 7 exige Vite 8, mais vite-plugin-top-level-await et
+      # vite-plugin-wasm n'ont pas encore de release compatible Vite 8.
+      # À rouvrir manuellement quand ces deux plugins suivent.
+      - dependency-name: "astro"
+        update-types: ["version-update:semver-major"]
 
   # ── GitHub Actions (checkout, setup-node, configure-aws-credentials…) ──
   - package-ecosystem: github-actions
