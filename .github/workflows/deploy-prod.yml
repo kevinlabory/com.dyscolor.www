@@ -32,7 +32,7 @@ jobs:
 
       # Cache du runtime Pulumi téléchargé par `sst install` (~100 MB)
       - name: Cache SST runtime
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: .sst/platform
           key: sst-platform-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
