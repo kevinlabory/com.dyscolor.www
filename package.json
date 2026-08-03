@@ -26,7 +26,7 @@
     "@dyscolor/syllabify-fr-wasm": "^0.8.4"
   },
   "devDependencies": {
-    "@modelcontextprotocol/sdk": "^1.29.0",
+    "@modelcontextprotocol/sdk": "^1.30.0",
     "@tailwindcss/vite": "^4.3.3",
     "astro": "^6.3.1",
     "sharp": "^0.35.3",
