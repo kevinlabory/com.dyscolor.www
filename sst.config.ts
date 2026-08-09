@@ -390,8 +390,9 @@ export default $config({
       runtime: 'nodejs22.x',
       memory: '256 MB',
       timeout: '15 seconds',
-      // Concurrence réservée : cap dur à 10 invocations parallèles (FinOps + anti-abus)
-      reservedConcurrencies: 10,
+      // Concurrence réservée à 0 : coupure réversible du endpoint (désactivé temporairement,
+      // test terminé). Repasser à 10 pour réactiver — aucune ressource détruite entretemps.
+      reservedConcurrencies: 0,
       url: true,
       environment: {
         MCP_API_KEY: mcpApiKey.value,
