@@ -335,15 +335,30 @@ body {
   header {
     display: none !important;
   }
+  /* Neutralise le min-h-screen sur body : sans ça, `main` (flex-1) est étiré
+     par flex-grow sur toute la hauteur du viewport écran (pas juste sa
+     propriété `height`, que le flex-grow ignore) — une boîte quasi pleine
+     page est réservée même pour un texte court, qui déborde alors sur une
+     2e page. */
+  main {
+    height: auto !important;
+    padding-bottom: 0 !important;
+  }
   #output-panel {
+    height: auto !important;
     font-size: 14pt;
     line-height: 1.9;
-    color-adjust: exact;
-    -webkit-print-color-adjust: exact;
     padding: 0;
     overflow: visible;
+    background: white !important;
+  }
+  /* Le panneau de droite a un fond crème (--color-panel) à l'écran ;
+     inutile à l'impression et consomme de l'encre. */
+  .bg-panel {
+    background: white !important;
   }
   body {
+    min-height: 0 !important;
     background: white;
   }
 }
