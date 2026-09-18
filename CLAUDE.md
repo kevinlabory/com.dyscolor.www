@@ -2,10 +2,11 @@
 
 ## Stack
 
-- **Frontend** : Astro 6 (static), Vite 7, Tailwind CSS v4
+- **Frontend** : Astro 7 (static), Vite 8 (Rolldown), Tailwind CSS v4
 - **Moteur** : Rust/WASM via `@dyscolor/syllabify-fr-wasm` (npm)
 - **Infra** : AWS CloudFront + S3, déployé avec SST v4
-- **Tests** : vitest (avec `vite-plugin-wasm` + `vite-plugin-top-level-await`)
+- **Tests** : vitest (avec `vite-plugin-wasm` — le top-level await est natif dans Rolldown,
+  `vite-plugin-top-level-await` est incompatible Vite 8 : il `require('rollup')` en dur)
 
 ## Commandes
 
