@@ -20,7 +20,7 @@
   "dependencies": {
     "@astrojs/sitemap": "^3.7.4",
     "@dyscolor/syllabify-fr": "*",
-    "@dyscolor/syllabify-fr-wasm": "^0.10.0"
+    "@dyscolor/syllabify-fr-wasm": "^0.10.1"
   },
   "devDependencies": {
     "@modelcontextprotocol/sdk": "^1.32.1",
